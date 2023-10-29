@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from queue import Queue
 
-class QueuingStartegy(ABC):
+class QueuingStrategy(ABC):
     def __init__(self) -> None:
         self.prepared_queue = Queue()
     

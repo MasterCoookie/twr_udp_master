@@ -10,6 +10,7 @@ class Queuer:
         self.queuing_strategy = queuing_strategy
 
     def fill_queue(self, queue):
+        #TODO - fix bug with len
         if len(queue) < self.queue_lower_limit:
             while len(queue) < self.queue_upper_limit:
                 queue.put(self.prepared_queue.get())
