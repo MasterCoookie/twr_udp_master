@@ -15,7 +15,12 @@ class UDPSocket:
         self.bound_socket.sendto(message_encoded, (ip, port))
 
     def receive(self, verbose=False):
-        message_encoded, address = self.bound_socket.recvfrom(1024)
-        if verbose:
-            print(f"Received message: {message_encoded.decode()} from {address}")
-        return message_encoded, address
+        try:
+            message_encoded, address = self.bound_socket.recvfrom(1024)
+            if verbose:
+                print(f"Received message: {message_encoded.decode()} from {address}")
+            return message_encoded, address
+        except socket.timeout:
+            if verbose:
+                print("Socket timeout")
+            return None, None
