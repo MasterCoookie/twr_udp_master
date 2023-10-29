@@ -10,12 +10,20 @@ class Queuer:
         self.queuing_strategy = queuing_strategy
 
     def fill_queue(self, queue):
-        #TODO - fix bug with len
-        if len(queue) < self.queue_lower_limit:
-            while len(queue) < self.queue_upper_limit:
-                queue.put(self.prepared_queue.get())
+        if queue.qsize() < self.queue_lower_limit:
+            while queue.qsize() < self.queue_upper_limit:
+                if(not self.prepared_queue.empty()):
+                    queue.put(self.prepared_queue.get())
+                else:
+                    if queue.qsize() > self.queue_lower_limit:
+                        break
+                    else:
+                        raise Exception("Queue is empty")
+
         return queue
-    
+    #TODO - rename
     def prepare_queue(self):
-        if len(self.prepared_queue) < self.queue_lower_limit:
+        while self.prepared_queue.qsize() < self.queue_lower_limit:
             self.queuing_strategy.prepare_queue(self.tags_list)
+            #TODO - potentially rework this
+            self.prepared_queue = self.queuing_strategy.prepared_queue

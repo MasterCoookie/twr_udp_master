@@ -1,4 +1,5 @@
 import unittest
+from queue import Queue
 from queuer import Queuer
 from random_startegy import RandomStrategy
 from uwb_tag import UWBTag
@@ -12,16 +13,25 @@ class TestQueuer(unittest.TestCase):
         self.queuer = Queuer(tags_list, RandomStrategy())
 
     def test_prepare_queue(self):
-        self.queuer.queuing_strategy.prepare_queue(self.queuer.tags_list)
-        queue_len = self.queuer.queuing_strategy.prepared_queue.qsize()
+        self.queuer.prepare_queue()
+        queue_len = self.queuer.prepared_queue.qsize()
 
         self.assertGreater(queue_len, 0)
     
-        self.assertIsInstance(self.queuer.queuing_strategy.prepared_queue.get(), tuple)
+        self.assertIsInstance(self.queuer.prepared_queue.get(), tuple)
 
-        queue_element = self.queuer.queuing_strategy.prepared_queue.get()
+        queue_element = self.queuer.prepared_queue.get()
         self.assertIsInstance(queue_element[0], UWBTag)
         self.assertIsInstance(queue_element[1], UWBDevice)
+
+    def test_fill_queue(self):
+        q = Queue()
+        self.queuer.prepare_queue()
+
+        self.queuer.fill_queue(q)
+        self.assertGreaterEqual(q.qsize(), 3)
+        self.assertLessEqual(q.qsize(), 5)
+
 
 if __name__ == "__main__":
     unittest.main()
