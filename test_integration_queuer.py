@@ -32,6 +32,9 @@ class TestQueuer(unittest.TestCase):
         self.assertGreaterEqual(q.qsize(), 3)
         self.assertLessEqual(q.qsize(), 5)
 
+    def test_empty_throw(self):
+        q = Queue()
+        self.assertRaises(Exception, self.queuer.fill_queue, q)
 
 if __name__ == "__main__":
     unittest.main()
