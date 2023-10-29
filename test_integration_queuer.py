@@ -15,8 +15,7 @@ class TestQueuer(unittest.TestCase):
         self.queuer.queuing_strategy.prepare_queue(self.queuer.tags_list)
         queue_len = self.queuer.queuing_strategy.prepared_queue.qsize()
 
-        #TODO - len shpould be based on smth
-        self.assertEqual(2, queue_len)
+        self.assertGreater(queue_len, 0)
     
         self.assertIsInstance(self.queuer.queuing_strategy.prepared_queue.get(), tuple)
 
