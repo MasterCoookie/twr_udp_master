@@ -9,10 +9,10 @@ class UDPSocket:
         self.bound_socket.bind(('0.0.0.0', out_port))
         self.bound_socket.settimeout(timeout)
 
-    def send(self, message_encoded, ip, port, verbose=False):
+    def send(self, message_encoded, ip, taget_port, verbose=False):
         if verbose:
-            print(f"Sending message: {message_encoded.decode()} to {ip}:{port}")
-        self.bound_socket.sendto(message_encoded, (ip, port))
+            print(f"Sending message: {message_encoded.decode()} to {ip}:{taget_port}")
+        self.bound_socket.sendto(message_encoded, (ip, taget_port))
 
     def receive(self, verbose=False):
         try:
