@@ -4,3 +4,6 @@ class UWBDevice:
         self.device_port = device_port
         self.uwb_address = uwb_address
     
+    @property
+    def address(self):
+        return (self.ip, self.device_port)

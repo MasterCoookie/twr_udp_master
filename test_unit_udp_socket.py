@@ -3,6 +3,7 @@ import socket
 from udp_socket import UDPSocket
 
 class TestUDPSocket(unittest.TestCase):
+    #TODO - teardown
     def setUp(self):
         self.ip = '127.0.0.1'
         self.port = 5000
