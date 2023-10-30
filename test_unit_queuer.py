@@ -20,12 +20,12 @@ class TestQueuer(unittest.TestCase):
     
         self.assertIsInstance(self.queuer.prepared_queue.get(), tuple)
 
-        queue_element = self.queuer.prepared_queue.get()
+        message_encoded, ip, target_port = self.queuer.prepared_queue.get()
 
-        # tuple should be (message, ip, port)
-        self.assertIsInstance(queue_element[0], bytes)
-        self.assertIsInstance(queue_element[1], str)
-        self.assertIsInstance(queue_element[2], int)
+
+        self.assertIsInstance(message_encoded, bytes)
+        self.assertIsInstance(ip, str)
+        self.assertIsInstance(target_port, int)
 
     def test_fill_queue(self):
         q = Queue()
