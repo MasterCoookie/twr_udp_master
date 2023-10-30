@@ -1,6 +1,6 @@
 import socket
 import time
-from threading import Queue
+from multiprocessing import Queue
 
 class UDPSocket:
     '''
@@ -17,6 +17,7 @@ class UDPSocket:
         self.bound_socket.settimeout(timeout)
 
         self.msg_queue = Queue()
+        self.received_queue = Queue()
         self.post_send_delay = post_send_delay
 
     def send(self, message_encoded, ip, taget_port, verbose=False):
@@ -46,12 +47,22 @@ class UDPSocket:
                 print("Socket timeout")
             return None, None
 
-    def sending_process(self):
+    def sending_process(self, ended):
         '''
         Sends messages from the queue in an infinite loop.
         Ment to be run in a separate thread.
         '''
-        while True:
-            message_encoded, ip, target_port = self.msg_queue.get()
-            self.send(message_encoded, ip, target_port)
-            time.sleep(self.post_send_delay)
+        while not ended.is_set():
+            if self.msg_queue.empty():
+                time.sleep(.1)
+                print("Queue empty!")
+                continue
+            else:
+                message_encoded, ip, target_port = self.msg_queue.get()
+                self.send(message_encoded, ip, target_port)
+
+                response_encoded, response_address = self.receive()
+
+                self.received_queue.put((response_encoded, response_address))
+
+                time.sleep(self.post_send_delay)

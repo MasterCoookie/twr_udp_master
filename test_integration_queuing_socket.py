@@ -20,6 +20,7 @@ class TestQueuerSocket(unittest.TestCase):
         self.udp_socket = UDPSocket(5000, 2)
 
         self.ended = Event()
+        self.ended.clear()
         self.timeout_counter = 0
 
     def receiver_process(self):

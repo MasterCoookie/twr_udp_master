@@ -26,3 +26,7 @@ class Queuer:
             self.queuing_strategy.prepare_queue(self.tags_list)
             #TODO - potentially rework this
             self.prepared_queue = self.queuing_strategy.prepared_queue
+
+    def queing_process(self, ended):
+        while not ended.is_set():
+            self.encode_queue()

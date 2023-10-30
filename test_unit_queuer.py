@@ -22,7 +22,6 @@ class TestQueuer(unittest.TestCase):
 
         message_encoded, ip, target_port = self.queuer.prepared_queue.get()
 
-
         self.assertIsInstance(message_encoded, bytes)
         self.assertIsInstance(ip, str)
         self.assertIsInstance(target_port, int)
