@@ -31,6 +31,8 @@ class TestQueuerSocket(unittest.TestCase):
             try:
                 message_received, address = receiver_socket.recvfrom(1024)
                 self.assertTrue(message_received == b'AA' or message_received == b'BB')
+
+                receiver_socket.sendto(b'DIST: 21.37m', address)
             except socket.timeout:
                 timeout_counter += 1
             

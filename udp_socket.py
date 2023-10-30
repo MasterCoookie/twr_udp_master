@@ -1,4 +1,5 @@
 import socket
+from threading import Queue
 
 class UDPSocket:
     '''
@@ -6,13 +7,14 @@ class UDPSocket:
     Only one instance of it should be created in the program.
     The socket is designed to work in multithreaded environment.
     '''
-    def __init__(self, out_port, devices_count, timeout=.5):
+    def __init__(self, out_port, devices_count, timeout=.5, post_send_delay=0):
         self.out_port = out_port
         self.devices_count = devices_count
 
         self.bound_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.bound_socket.bind(('0.0.0.0', out_port))
         self.bound_socket.settimeout(timeout)
+        self.msg_queue = Queue()
 
     def send(self, message_encoded, ip, taget_port, verbose=False):
         '''
@@ -40,3 +42,6 @@ class UDPSocket:
             if verbose:
                 print("Socket timeout")
             return None, None
+
+    def sending_process(self):
+        pass
