@@ -12,8 +12,8 @@ class TestQueuer(unittest.TestCase):
         tags_list = [UWBTag("192.168.0.112", 7, "DD", [anchor_1, anchor_2]), UWBTag("192.168.0.113", 7, "EE", [anchor_1, anchor_2])]
         self.queuer = Queuer(tags_list, RandomStrategy())
 
-    def test_prepare_queue(self):
-        self.queuer.prepare_queue()
+    def test_encode_queue(self):
+        self.queuer.encode_queue()
         queue_len = self.queuer.prepared_queue.qsize()
 
         self.assertGreater(queue_len, 0)
@@ -21,12 +21,15 @@ class TestQueuer(unittest.TestCase):
         self.assertIsInstance(self.queuer.prepared_queue.get(), tuple)
 
         queue_element = self.queuer.prepared_queue.get()
-        self.assertIsInstance(queue_element[0], UWBTag)
-        self.assertIsInstance(queue_element[1], UWBDevice)
+
+        # tuple should be (message, ip, port)
+        self.assertIsInstance(queue_element[0], bytes)
+        self.assertIsInstance(queue_element[1], str)
+        self.assertIsInstance(queue_element[2], int)
 
     def test_fill_queue(self):
         q = Queue()
-        self.queuer.prepare_queue()
+        self.queuer.encode_queue()
 
         self.queuer.fill_queue(q)
         self.assertGreaterEqual(q.qsize(), 3)
@@ -35,6 +38,7 @@ class TestQueuer(unittest.TestCase):
     def test_empty_throw(self):
         q = Queue()
         self.assertRaises(Exception, self.queuer.fill_queue, q)
+        
 
 if __name__ == "__main__":
     unittest.main()

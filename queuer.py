@@ -21,8 +21,7 @@ class Queuer:
                         raise Exception("Queue is empty")
 
         return queue
-    #TODO - rename
-    def prepare_queue(self):
+    def encode_queue(self):
         while self.prepared_queue.qsize() < self.queue_lower_limit:
             self.queuing_strategy.prepare_queue(self.tags_list)
             #TODO - potentially rework this
