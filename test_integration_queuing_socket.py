@@ -39,9 +39,11 @@ class TestQueuerSocket(unittest.TestCase):
             
 
     def test_queuing_multiprocess(self):
-        q = Queue()
-        p1 = Process(target=self.queuer.preparation_process, args=(q,))
-        p2 = Process(target=self.udp_socket.sending_process, args=(q,))
+        msg_q = Queue()
+        result_q = Queue()
+
+        p1 = Process(target=self.queuer.preparation_process, args=(msg_q,))
+        p2 = Process(target=self.udp_socket.sending_process, args=(msg_q, result_q, self.ended))
         p3 = Process(target=self.receiver_process)
 
         p1.start()
