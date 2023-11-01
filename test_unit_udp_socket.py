@@ -1,5 +1,6 @@
 import unittest
 import socket
+import time
 from udp_socket import UDPSocket
 from multiprocessing import Queue, Process, Event
 
@@ -40,38 +41,59 @@ class TestUDPSocket(unittest.TestCase):
         self.assertIsNone(message_received)
         self.assertIsNone(address)
         udp_socket.bound_socket.close()
-
-    def receiver_process(self, ended):
-        receiver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        receiver_socket.bind((self.ip, self.port + 1))
-        receiver_socket.settimeout(.5)
-
-        while not ended.is_set():
-            try:
-                message_received, address = receiver_socket.recvfrom(1024)
-                self.assertAlmostEqual(message_received, b'Hello World!')
-                self.assertEqual((self.ip, self.port), address)
-
-                receiver_socket.sendto(b'Im responding!', address)
-            except socket.timeout:
-                self.fail("Socket timeout")
         
 
     def test_sending_process(self):
         udp_socket = UDPSocket(self.port, self.devices_count)
-        msg_queue = Queue((b'Hello World!', self.ip, self.port + 1), (b'Hello World2', self.ip, self.port + 1))
+        msg_queue = Queue()
         res_queue = Queue()
+
+        msg_queue.put((b'Hello World!', self.ip, self.port + 1))
+        msg_queue.put((b'Hello World2', self.ip, self.port + 1))
+
+        global receiver_process
+
+        def receiver_process(ended):
+            receiver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            receiver_socket.bind((self.ip, self.port + 1))
+            receiver_socket.settimeout(.5)
+
+            while not ended.is_set():
+                try:
+                    message_received, address = receiver_socket.recvfrom(1024)
+                    self.assertAlmostEqual(message_received, b'Hello World!')
+                    self.assertEqual((self.ip, self.port), address)
+
+                    receiver_socket.sendto(b'Im responding!', address)
+                except socket.timeout:
+                    self.fail("Socket timeout")
+
+            receiver_socket.close()
 
         ended = Event()
         ended.clear()
 
-        p1 = Process(target=self.receiver_process, args=(ended))
+        p1 = Process(target=receiver_process, args=(ended, ))
         p2 = Process(target=udp_socket.sending_process, args=(ended, msg_queue, res_queue))
 
         p1.start()
         p2.start()
 
-        time.sleep(.25)
+        time.sleep(.005)
+        msg_queue.put((b'Hello World3', self.ip, self.port + 1))
+        time.sleep(.005)
+        msg_queue.put((b'Hello World4', self.ip, self.port + 1))
+        time.sleep(.005)
+
+        ended.set()
+        udp_socket.bound_socket.close()
+
+        p1.join()
+        p2.join()
+
+        
+
+        self.assertEqual(res_queue.qsize(), 4)
 
 
 if __name__ == '__main__':
