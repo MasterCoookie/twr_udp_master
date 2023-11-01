@@ -8,14 +8,13 @@ class UDPSocket:
     Only one instance of it should be created in the program.
     The socket is designed to work in multithreaded environment.
     '''
-    def __init__(self, out_port, devices_count, timeout=.5, post_send_delay=0.01):
+    def __init__(self, out_port, devices_count, timeout=.2, post_send_delay=0.01):
         self.out_port = out_port
         self.devices_count = devices_count
 
         self.bound_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.bound_socket.bind(('0.0.0.0', out_port))
-        self.bound_socket.settimeout(timeout)
-
+        self.timeout = timeout
 
         self.post_send_delay = post_send_delay
 
@@ -37,6 +36,7 @@ class UDPSocket:
         If the socket times out, returns None, None.
         '''
         try:
+            self.bound_socket.settimeout(self.timeout)
             message_encoded, address = self.bound_socket.recvfrom(1024)
             if verbose:
                 print(f"Received message: {message_encoded.decode()} from {address}")
@@ -58,7 +58,7 @@ class UDPSocket:
                 print("Queue empty!")
                 continue
             else:
-                message_encoded, ip, target_port = self.msg_queue.get()
+                message_encoded, ip, target_port = msg_queue.get()
                 self.send(message_encoded, ip, target_port)
 
                 response_encoded, response_address = self.receive()

@@ -1,7 +1,10 @@
 import unittest
 import socket
 import time
+
 from udp_socket import UDPSocket
+from helper_functions import receiver_process
+
 from multiprocessing import Queue, Process, Event
 
 class TestUDPSocket(unittest.TestCase):
@@ -51,24 +54,6 @@ class TestUDPSocket(unittest.TestCase):
         msg_queue.put((b'Hello World!', self.ip, self.port + 1))
         msg_queue.put((b'Hello World2', self.ip, self.port + 1))
 
-        global receiver_process
-
-        def receiver_process(ended):
-            receiver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            receiver_socket.bind((self.ip, self.port + 1))
-            receiver_socket.settimeout(.5)
-
-            while not ended.is_set():
-                try:
-                    message_received, address = receiver_socket.recvfrom(1024)
-                    self.assertAlmostEqual(message_received, b'Hello World!')
-                    self.assertEqual((self.ip, self.port), address)
-
-                    receiver_socket.sendto(b'Im responding!', address)
-                except socket.timeout:
-                    self.fail("Socket timeout")
-
-            receiver_socket.close()
 
         ended = Event()
         ended.clear()
@@ -83,15 +68,14 @@ class TestUDPSocket(unittest.TestCase):
         msg_queue.put((b'Hello World3', self.ip, self.port + 1))
         time.sleep(.005)
         msg_queue.put((b'Hello World4', self.ip, self.port + 1))
-        time.sleep(.005)
+       
+        time.sleep(.2)
 
         ended.set()
         udp_socket.bound_socket.close()
 
         p1.join()
         p2.join()
-
-        
 
         self.assertEqual(res_queue.qsize(), 4)
 
