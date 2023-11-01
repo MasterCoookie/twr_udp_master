@@ -46,6 +46,7 @@ class UDPSocket:
                 print("Socket timeout")
             return None, None
 
+    #TODO - rename
     def sending_process(self, ended, msg_queue, received_queue):
         '''
         Sends messages from the queue in an infinite loop.

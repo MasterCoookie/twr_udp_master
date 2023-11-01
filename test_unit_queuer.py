@@ -50,6 +50,7 @@ class TestQueuer(unittest.TestCase):
 
         p1 = Process(target=self.queuer.queing_process, args=(ended, q))
         p1.start()
+
         time.sleep(.25)
         q.get()
         q.get()
@@ -57,6 +58,7 @@ class TestQueuer(unittest.TestCase):
         q.get()
         q.get()
         time.sleep(.25)
+
         ended.set()
         p1.join()
 
