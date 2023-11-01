@@ -1,5 +1,5 @@
 import unittest
-import socket
+import time
 
 from multiprocessing import Process, Queue, Event
 
@@ -8,6 +8,7 @@ from random_startegy import RandomStrategy
 from uwb_tag import UWBTag
 from uwb_device import UWBDevice
 from udp_socket import UDPSocket
+from helper_functions import receiver_process
 
 RECEIVER_PORT = 5001
 
@@ -19,42 +20,51 @@ class TestQueuerSocket(unittest.TestCase):
         self.queuer = Queuer(tags_list, RandomStrategy())
         self.udp_socket = UDPSocket(5000, 2)
 
-        self.ended = Event()
-        self.ended.clear()
         self.timeout_counter = 0
 
-    def receiver_process(self):
-        receiver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        receiver_socket.bind(("127.0.0.1", RECEIVER_PORT))
-        receiver_socket.settimeout(.5)        
+    # def receiver_process(self):
+    #     receiver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    #     receiver_socket.bind(("127.0.0.1", RECEIVER_PORT))
+    #     receiver_socket.settimeout(.5)        
 
-        while not self.ended.is_set():
-            try:
-                message_received, address = receiver_socket.recvfrom(1024)
-                self.assertTrue(message_received == b'AA' or message_received == b'BB')
+    #     while not self.ended.is_set():
+    #         try:
+    #             message_received, address = receiver_socket.recvfrom(1024)
+    #             self.assertTrue(message_received == b'AA' or message_received == b'BB')
 
-                receiver_socket.sendto(b'DIST: 21.37m', address)
-            except socket.timeout:
-                timeout_counter += 1
+    #             receiver_socket.sendto(b'DIST: 21.37m', address)
+    #         except socket.timeout:
+    #             timeout_counter += 1
             
 
     def test_queuing_multiprocess(self):
         msg_q = Queue()
         result_q = Queue()
 
-        p1 = Process(target=self.queuer.queing_process, args=(self.ended, msg_q))
-        p2 = Process(target=self.udp_socket.sending_process, args=(msg_q, result_q, self.ended))
-        p3 = Process(target=self.receiver_process)
+        ended = Event()
+        ended.clear()
+
+        p1 = Process(target=self.queuer.queing_process, args=(ended, msg_q))
+        p2 = Process(target=self.udp_socket.sending_process, args=(ended, msg_q, result_q))
+        p3 = Process(target=receiver_process, args=(ended, ))
 
         p1.start()
         p2.start()
+        p3.start()
+
+        time.sleep(.5)
+        ended.set()
 
         p1.join()
         p2.join()
-        self.ended.set()
         p3.join()
 
-        self.assertEqual(self.timeout_counter, 0)
+        self.udp_socket.bound_socket.close()
+
+        while not result_q.empty():
+            message_received, address = result_q.get()
+            self.assertEqual(message_received, b'Im responding!')
+            self.assertEqual(address, ('127.0.0.1', 5000))
 
 
 
