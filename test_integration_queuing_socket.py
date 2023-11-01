@@ -20,22 +20,7 @@ class TestQueuerSocket(unittest.TestCase):
         self.queuer = Queuer(tags_list, RandomStrategy())
         self.udp_socket = UDPSocket(5000, 2)
 
-        self.timeout_counter = 0
-
-    # def receiver_process(self):
-    #     receiver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    #     receiver_socket.bind(("127.0.0.1", RECEIVER_PORT))
-    #     receiver_socket.settimeout(.5)        
-
-    #     while not self.ended.is_set():
-    #         try:
-    #             message_received, address = receiver_socket.recvfrom(1024)
-    #             self.assertTrue(message_received == b'AA' or message_received == b'BB')
-
-    #             receiver_socket.sendto(b'DIST: 21.37m', address)
-    #         except socket.timeout:
-    #             timeout_counter += 1
-            
+        self.timeout_counter = 0            
 
     def test_queuing_multiprocess(self):
         msg_q = Queue()
@@ -49,6 +34,7 @@ class TestQueuerSocket(unittest.TestCase):
         p3 = Process(target=receiver_process, args=(ended, ))
 
         p1.start()
+        time.sleep(.1)
         p2.start()
         p3.start()
 
@@ -64,7 +50,7 @@ class TestQueuerSocket(unittest.TestCase):
         while not result_q.empty():
             message_received, address = result_q.get()
             self.assertEqual(message_received, b'Im responding!')
-            self.assertEqual(address, ('127.0.0.1', 5000))
+            self.assertEqual(address, ('127.0.0.1', 5001))
 
 
 
