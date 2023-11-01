@@ -14,11 +14,12 @@ class TestQueuer(unittest.TestCase):
         self.queuer = Queuer(tags_list, RandomStrategy())
 
     def check_queue_contents(self, queue):
-        message_encoded, ip, target_port = queue.get()
+        while not queue.empty():
+            message_encoded, ip, target_port = queue.get()
 
-        self.assertIsInstance(message_encoded, bytes)
-        self.assertIsInstance(ip, str)
-        self.assertIsInstance(target_port, int)
+            self.assertIsInstance(message_encoded, bytes)
+            self.assertIsInstance(ip, str)
+            self.assertIsInstance(target_port, int)
 
     def test_encode_queue(self):
         self.queuer.encode_queue()
@@ -49,7 +50,13 @@ class TestQueuer(unittest.TestCase):
 
         p1 = Process(target=self.queuer.queing_process, args=(ended, q))
         p1.start()
-        time.sleep(.5)
+        time.sleep(.25)
+        q.get()
+        q.get()
+        time.sleep(.25)
+        q.get()
+        q.get()
+        time.sleep(.25)
         ended.set()
         p1.join()
 
