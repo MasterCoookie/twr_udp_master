@@ -53,7 +53,5 @@ class TestQueuerSocket(unittest.TestCase):
             self.assertEqual(address, ('127.0.0.1', 5001))
 
 
-
-
 if __name__ == "__main__":
     unittest.main()
