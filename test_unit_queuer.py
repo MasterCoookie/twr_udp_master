@@ -1,9 +1,10 @@
 import unittest
-from queue import Queue
+import time
 from queuer import Queuer
 from random_startegy import RandomStrategy
 from uwb_tag import UWBTag
 from uwb_device import UWBDevice
+from multiprocessing import Event, Process, Queue
 
 class TestQueuer(unittest.TestCase):
     def setUp(self) -> None:
@@ -37,6 +38,20 @@ class TestQueuer(unittest.TestCase):
     def test_empty_throw(self):
         q = Queue()
         self.assertRaises(Exception, self.queuer.fill_queue, q)
+
+    def test_queing_process(self):
+        q = Queue()
+        ended = Event()
+        ended.clear()
+
+        p1 = Process(target=self.queuer.queing_process, args=(ended, q))
+        p1.start()
+        time.sleep(.5)
+        ended.set()
+        p1.join()
+
+        self.assertGreaterEqual(q.qsize(), 3)
+        self.assertLessEqual(q.qsize(), 5)
         
 
 if __name__ == "__main__":

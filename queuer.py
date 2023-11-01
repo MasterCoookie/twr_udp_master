@@ -1,4 +1,4 @@
-from queue import Queue
+from multiprocessing import Queue
 
 class Queuer:
     def __init__(self, tags_list, queuing_strategy, queue_lower_limit=3, queue_upper_limit=5):
@@ -27,6 +27,7 @@ class Queuer:
             #TODO - potentially rework this
             self.prepared_queue = self.queuing_strategy.prepared_queue
 
-    def queing_process(self, ended):
+    def queing_process(self, ended, message_queue):
         while not ended.is_set():
             self.encode_queue()
+            self.fill_queue(message_queue)
