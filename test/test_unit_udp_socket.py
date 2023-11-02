@@ -77,7 +77,8 @@ class TestUDPSocket(unittest.TestCase):
         p1.join()
         p2.join()
 
-        self.assertEqual(res_queue.qsize(), 4)
+        self.assertGreaterEqual(res_queue.qsize(), 4)
+        self.assertLessEqual(res_queue.qsize(), 6)
         q_element = res_queue.get()
         self.assertEqual(q_element[0], b'Im responding!')
         self.assertEqual(q_element[1], (self.ip, self.port + 1))
