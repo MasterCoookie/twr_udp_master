@@ -34,6 +34,7 @@ class TestQueuerSocket(unittest.TestCase):
         p3 = Process(target=receiver_process, args=(ended, ))
 
         p1.start()
+        # time to prepare first queue
         time.sleep(.1)
         p2.start()
         p3.start()
