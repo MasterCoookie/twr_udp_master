@@ -47,15 +47,17 @@ class UDPSocket:
             return None, None
 
     #TODO - rename
-    def sending_process(self, ended, msg_queue, received_queue):
+    def sending_process(self, ended, msg_queue, received_queue, verbose=False):
         '''
         Sends messages from the queue in an infinite loop.
         Ment to be run in a separate thread.
         '''
+        self.bound_socket.settimeout(self.timeout)
         while not ended.is_set():
             if msg_queue.empty():
                 time.sleep(.1)
-                print("Queue empty!")
+                if verbose:
+                    print("Queue empty!")
                 received_queue.put((None, None))
                 continue
             else:

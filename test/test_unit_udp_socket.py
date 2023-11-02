@@ -58,7 +58,7 @@ class TestUDPSocket(unittest.TestCase):
         ended = Event()
         ended.clear()
 
-        p1 = Process(target=receiver_process, args=(ended, ))
+        p1 = Process(target=receiver_process, args=(ended, False))
         p2 = Process(target=udp_socket.sending_process, args=(ended, msg_queue, res_queue))
 
         p1.start()
@@ -69,13 +69,13 @@ class TestUDPSocket(unittest.TestCase):
         time.sleep(.005)
         msg_queue.put((b'Hello World4', self.ip, self.port + 1))
        
-        time.sleep(.15)
+        time.sleep(.25)
 
         ended.set()
-        udp_socket.bound_socket.close()
 
         p1.join()
         p2.join()
+        udp_socket.bound_socket.close()
 
         self.assertGreaterEqual(res_queue.qsize(), 4)
         self.assertLessEqual(res_queue.qsize(), 6)
