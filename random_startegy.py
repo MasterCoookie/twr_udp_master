@@ -7,4 +7,5 @@ class RandomStrategy(QueuingStrategy):
 
     def prepare_queue(self, tags_list):
         for tag in tags_list:
-            self.prepared_queue.put((tag, choice(tag.available_devices)))
+            anchor = choice(tag.available_devices)
+            self.prepared_queue.put((anchor.uwb_address.encode(), tag.ip, tag.device_port))

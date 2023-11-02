@@ -1,6 +1,11 @@
 import unittest
 import socket
+import time
+
 from udp_socket import UDPSocket
+from helper_functions import receiver_process
+
+from multiprocessing import Queue, Process, Event
 
 class TestUDPSocket(unittest.TestCase):
     #TODO - teardown
@@ -40,6 +45,43 @@ class TestUDPSocket(unittest.TestCase):
         self.assertIsNone(address)
         udp_socket.bound_socket.close()
         
+
+    def test_sending_process(self):
+        udp_socket = UDPSocket(self.port, self.devices_count)
+        msg_queue = Queue()
+        res_queue = Queue()
+
+        msg_queue.put((b'Hello World!', self.ip, self.port + 1))
+        msg_queue.put((b'Hello World2', self.ip, self.port + 1))
+
+
+        ended = Event()
+        ended.clear()
+
+        p1 = Process(target=receiver_process, args=(ended, ))
+        p2 = Process(target=udp_socket.sending_process, args=(ended, msg_queue, res_queue))
+
+        p1.start()
+        p2.start()
+
+        time.sleep(.005)
+        msg_queue.put((b'Hello World3', self.ip, self.port + 1))
+        time.sleep(.005)
+        msg_queue.put((b'Hello World4', self.ip, self.port + 1))
+       
+        time.sleep(.2)
+
+        ended.set()
+        udp_socket.bound_socket.close()
+
+        p1.join()
+        p2.join()
+
+        self.assertEqual(res_queue.qsize(), 4)
+        q_element = res_queue.get()
+        self.assertEqual(q_element[0], b'Im responding!')
+        self.assertEqual(q_element[1], (self.ip, self.port + 1))
+
 
 if __name__ == '__main__':
     unittest.main()

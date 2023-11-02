@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from queue import Queue
+from multiprocessing import Queue
 
 class QueuingStrategy(ABC):
     def __init__(self) -> None:

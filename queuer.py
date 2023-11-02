@@ -1,4 +1,4 @@
-from queue import Queue
+from multiprocessing import Queue
 
 class Queuer:
     def __init__(self, tags_list, queuing_strategy, queue_lower_limit=3, queue_upper_limit=5):
@@ -21,9 +21,14 @@ class Queuer:
                         raise Exception("Queue is empty")
 
         return queue
-    #TODO - rename
-    def prepare_queue(self):
+
+    def encode_queue(self):
         while self.prepared_queue.qsize() < self.queue_lower_limit:
             self.queuing_strategy.prepare_queue(self.tags_list)
             #TODO - potentially rework this
             self.prepared_queue = self.queuing_strategy.prepared_queue
+
+    def queing_process(self, ended, message_queue):
+        while not ended.is_set():
+            self.encode_queue()
+            self.fill_queue(message_queue)
