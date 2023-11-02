@@ -69,7 +69,7 @@ class TestUDPSocket(unittest.TestCase):
         time.sleep(.005)
         msg_queue.put((b'Hello World4', self.ip, self.port + 1))
        
-        time.sleep(.2)
+        time.sleep(.15)
 
         ended.set()
         udp_socket.bound_socket.close()
