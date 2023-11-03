@@ -8,11 +8,12 @@ from helper_functions import receiver_process
 from multiprocessing import Queue, Process, Event
 
 class TestUDPSocket(unittest.TestCase):
-    #TODO - teardown
     def setUp(self):
+        print("Testing UDP Socket")
         self.ip = '127.0.0.1'
         self.port = 5000
         self.devices_count = 1
+
     
     def test_send_receive_yourself(self):
         udp_socket = UDPSocket(self.port, self.devices_count)
@@ -84,6 +85,8 @@ class TestUDPSocket(unittest.TestCase):
         self.assertEqual(q_element[1], b'Im responding!')
         self.assertEqual(q_element[2], (self.ip, self.port + 1))
 
+    def tearDown(self):
+        print("Finished testing UDP Socket")
 
 if __name__ == '__main__':
     unittest.main()

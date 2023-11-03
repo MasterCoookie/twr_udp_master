@@ -23,7 +23,7 @@ class Queuer:
         return queue
 
     def encode_queue(self):
-        while self.prepared_queue.qsize() < self.queue_lower_limit:
+        while self.prepared_queue.qsize() < self.queue_upper_limit:
             self.queuing_strategy.prepare_queue(self.tags_dict)
             #TODO - potentially rework this
             self.prepared_queue = self.queuing_strategy.prepared_queue

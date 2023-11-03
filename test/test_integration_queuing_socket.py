@@ -36,7 +36,7 @@ class TestQueuerSocket(unittest.TestCase):
 
         p1.start()
         # time to prepare first queue
-        time.sleep(.2)
+        time.sleep(.1)
         p2.start()
         p3.start()
 
