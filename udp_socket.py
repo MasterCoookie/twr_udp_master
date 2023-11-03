@@ -53,6 +53,7 @@ class UDPSocket:
         Ment to be run in a separate thread.
         '''
         self.bound_socket.settimeout(self.timeout)
+
         while not ended.is_set():
             if msg_queue.empty():
                 time.sleep(.1)
@@ -66,6 +67,9 @@ class UDPSocket:
 
                 response_encoded, response_address = self.receive()
 
-                received_queue.put((response_encoded, response_address))
+                if verbose:
+                    print(f"Received response: {response_encoded.decode()} from {response_address}")
+
+                received_queue.put((ip, response_encoded, response_address))
 
                 time.sleep(self.post_send_delay)

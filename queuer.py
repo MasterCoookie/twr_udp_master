@@ -32,3 +32,8 @@ class Queuer:
         while not ended.is_set():
             self.encode_queue()
             self.fill_queue(message_queue)
+
+    def decode(self, message_encoded):
+        message = message_encoded.decode()
+        message = message.split(',')
+        return message[0], message[1], int(message[2])

@@ -30,7 +30,7 @@ class TestQueuerSocket(unittest.TestCase):
         ended.clear()
 
         p1 = Process(target=self.queuer.queing_process, args=(ended, msg_q))
-        p2 = Process(target=self.udp_socket.sending_process, args=(ended, msg_q, result_q))
+        p2 = Process(target=self.udp_socket.sending_process, args=(ended, msg_q, result_q, True))
         p3 = Process(target=receiver_process, args=(ended, ))
 
         p1.start()
@@ -49,7 +49,8 @@ class TestQueuerSocket(unittest.TestCase):
         self.udp_socket.bound_socket.close()
 
         while not result_q.empty():
-            message_received, address = result_q.get()
+            sendto_ip, message_received, address = result_q.get()
+            self.assertEqual(sendto_ip, '127.0.0.1')
             self.assertEqual(message_received, b'Im responding!')
             self.assertEqual(address, ('127.0.0.1', 5001))
 

@@ -66,6 +66,9 @@ class TestQueuer(unittest.TestCase):
         self.assertLessEqual(q.qsize(), 5)
 
         self.check_queue_contents(q)
+
+    def test_decode(self):
+        pass
         
 
 if __name__ == "__main__":

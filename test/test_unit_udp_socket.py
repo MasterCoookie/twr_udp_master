@@ -80,8 +80,9 @@ class TestUDPSocket(unittest.TestCase):
         self.assertGreaterEqual(res_queue.qsize(), 4)
         self.assertLessEqual(res_queue.qsize(), 6)
         q_element = res_queue.get()
-        self.assertEqual(q_element[0], b'Im responding!')
-        self.assertEqual(q_element[1], (self.ip, self.port + 1))
+        self.assertEqual(q_element[0], '127.0.0.1')
+        self.assertEqual(q_element[1], b'Im responding!')
+        self.assertEqual(q_element[2], (self.ip, self.port + 1))
 
 
 if __name__ == '__main__':
