@@ -10,8 +10,8 @@ class TestQueuer(unittest.TestCase):
     def setUp(self) -> None:
         anchor_1 = UWBDevice(None, None, "AA")
         anchor_2 = UWBDevice(None, None, "BB")
-        tags_list = [UWBTag("192.168.0.112", 7, "DD", [anchor_1, anchor_2]), UWBTag("192.168.0.113", 7, "EE", [anchor_1, anchor_2])]
-        self.queuer = Queuer(tags_list, RandomStrategy())
+        tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "DD", [anchor_1, anchor_2]), "192.168.0.113": UWBTag("192.168.0.113", 7, "EE", [anchor_1, anchor_2])}
+        self.queuer = Queuer(tags_dict, RandomStrategy())
 
     def check_queue_contents(self, queue):
         while not queue.empty():
@@ -67,8 +67,18 @@ class TestQueuer(unittest.TestCase):
 
         self.check_queue_contents(q)
 
-    def test_decode(self):
-        pass
+    def test_results_decode(self):
+        results_q = Queue()
+        for i in range(2):
+            results_q.put(('192.168.0.112', f'Hello World{i}'.encode('utf-8'), ('192.168.0.112', 5001)))
+            results_q.put(('192.168.0.113', f'Hello World{i}'.encode('utf-8'), ('192.168.0.113', 5001)))
+        
+        while not results_q.empty():
+            self.queuer.results_decode(results_q.get())
+
+
+
+
         
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 from multiprocessing import Queue
 
 class Queuer:
-    def __init__(self, tags_list, queuing_strategy, queue_lower_limit=3, queue_upper_limit=5):
-        self.tags_list = tags_list
+    def __init__(self, tags_dict, queuing_strategy, queue_lower_limit=3, queue_upper_limit=5):
+        self.tags_dict = tags_dict
         self.queue_lower_limit = queue_lower_limit
         self.queue_upper_limit = queue_upper_limit
         self.prepared_queue = Queue()
@@ -24,7 +24,7 @@ class Queuer:
 
     def encode_queue(self):
         while self.prepared_queue.qsize() < self.queue_lower_limit:
-            self.queuing_strategy.prepare_queue(self.tags_list)
+            self.queuing_strategy.prepare_queue(self.tags_dict)
             #TODO - potentially rework this
             self.prepared_queue = self.queuing_strategy.prepared_queue
 
@@ -33,7 +33,7 @@ class Queuer:
             self.encode_queue()
             self.fill_queue(message_queue)
 
-    def decode(self, message_encoded):
-        message = message_encoded.decode()
-        message = message.split(',')
-        return message[0], message[1], int(message[2])
+    def results_decode(self, message_encoded):
+        pass
+    
+    

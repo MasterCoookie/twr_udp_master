@@ -14,10 +14,11 @@ RECEIVER_PORT = 5001
 
 class TestQueuerSocket(unittest.TestCase):
     def setUp(self) -> None:
+        print("Testing queuer and socket integration")
         anchor_1 = UWBDevice(None, None, "AA")
         anchor_2 = UWBDevice(None, None, "BB")
-        tags_list = [UWBTag("127.0.0.1", RECEIVER_PORT, "DD", [anchor_1, anchor_2]), UWBTag("127.0.0.1", RECEIVER_PORT, "EE", [anchor_1, anchor_2])]
-        self.queuer = Queuer(tags_list, RandomStrategy())
+        tags_dict = {"127.0.0.1": UWBTag("127.0.0.1", RECEIVER_PORT, "DD", [anchor_1, anchor_2]), "127.0.0.1": UWBTag("127.0.0.1", RECEIVER_PORT, "EE", [anchor_1, anchor_2])}
+        self.queuer = Queuer(tags_dict, RandomStrategy())
         self.udp_socket = UDPSocket(5000, 2)
 
         self.timeout_counter = 0            
@@ -35,7 +36,7 @@ class TestQueuerSocket(unittest.TestCase):
 
         p1.start()
         # time to prepare first queue
-        time.sleep(.1)
+        time.sleep(.2)
         p2.start()
         p3.start()
 
@@ -53,6 +54,9 @@ class TestQueuerSocket(unittest.TestCase):
             self.assertEqual(sendto_ip, '127.0.0.1')
             self.assertEqual(message_received, b'Im responding!')
             self.assertEqual(address, ('127.0.0.1', 5001))
+
+    def tearDown(self):
+        print("Finished testing queuer and socket integration")
 
 
 if __name__ == "__main__":

@@ -59,7 +59,7 @@ class UDPSocket:
                 time.sleep(.1)
                 if verbose:
                     print("Queue empty!")
-                received_queue.put((None, None))
+                received_queue.put((ip, None, None))
                 continue
             else:
                 message_encoded, ip, target_port = msg_queue.get()
