@@ -7,7 +7,7 @@ from random_startegy import RandomStrategy
 
 from multiprocessing import Queue, Process, Event
 
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog
 from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot
 
 ended = Event()
@@ -44,17 +44,20 @@ class MainWindow(QWidget):
     def setup_ui(self):
         self.setWindowTitle("JK - Queuer")
 
-        self.setGeometry(100, 100, 300, 100)
+        self.setGeometry(100, 100, 500, 100)
         
         layout = QGridLayout(self)
         self.setLayout(layout)
 
         self.list_widget = QListWidget(self)
-        self.list_widget.addItem("Device")
-        layout.addWidget(self.list_widget, 0, 0, 3, 1)
+        self.list_widget.addItems(["Tag", "Anchor"])
+        layout.addWidget(self.list_widget, 0, 0, 4, 1)
 
-        add_device_button = QPushButton("Add device", self)
-        add_device_button.clicked.connect(self.add_device)
+        add_tag_button = QPushButton("Add Tag", self)
+        add_tag_button.clicked.connect(self.add_tag)
+
+        add_anchor_button = QPushButton("Add Anchor", self)
+        add_anchor_button.clicked.connect(self.add_anchor)
 
         remove_device_button = QPushButton("Remove device", self)
         remove_device_button.clicked.connect(self.remove_device)
@@ -62,22 +65,33 @@ class MainWindow(QWidget):
         clear_devices_button = QPushButton("Clear devices", self)
         clear_devices_button.clicked.connect(self.clear_devices)
 
+
+
         start_button = QPushButton("Start", self)
         #TODO - connect
 
-        layout.addWidget(add_device_button, 0, 1)
-        layout.addWidget(remove_device_button, 1, 1)
-        layout.addWidget(clear_devices_button, 2, 1)
-        layout.addWidget(start_button, 3, 0, 3, 1)
+        layout.addWidget(add_tag_button, 0, 1)
+        layout.addWidget(add_anchor_button, 1, 1)
+        layout.addWidget(remove_device_button, 2, 1)
+        layout.addWidget(clear_devices_button, 3, 1)
+        layout.addWidget(start_button, 4, 0, 4, 1)
 
-    def add_device(self):
-        self.list_widget.addItem("Device")
+    def add_tag(self):
+
+        self.list_widget.addItem("Tag")
+
+    def add_anchor(self):
+        self.list_widget.addItem("Anchor")
 
     def remove_device(self):
         self.list_widget.takeItem(self.list_widget.currentRow())
 
     def clear_devices(self):
         self.list_widget.clear()
+
+class AnchorInputDialog(QDialog):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
 if __name__ == "__main__":
