@@ -52,7 +52,6 @@ class MainWindow(QWidget):
         self.setLayout(layout)
 
         self.list_widget = QListWidget(self)
-        self.list_widget.addItems(["Tag", "Anchor"])
         layout.addWidget(self.list_widget, 0, 0, 4, 1)
 
         add_tag_button = QPushButton("Add Tag", self)
@@ -91,7 +90,9 @@ class MainWindow(QWidget):
             self.anchors_list.append(uwb_address)
 
     def remove_device(self):
-        self.list_widget.takeItem(self.list_widget.currentRow())
+        if(self.list_widget.currentItem()):
+            self.anchors_list.remove(self.list_widget.currentItem().text())
+            self.list_widget.takeItem(self.list_widget.currentRow())
 
     def clear_devices(self):
         self.list_widget.clear()
