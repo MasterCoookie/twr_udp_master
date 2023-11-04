@@ -77,8 +77,11 @@ class MainWindow(QWidget):
         layout.addWidget(start_button, 4, 0, 4, 1)
 
     def add_tag(self):
-
-        self.list_widget.addItem("Tag")
+        tag_input_dialog = TagInputDialog(self)
+        if tag_input_dialog.exec():
+            uwb_address, ip, port = tag_input_dialog.get_inputs()
+            self.list_widget.addItem(uwb_address)
+            #TODO - add to list
 
     def add_anchor(self):
         uwb_address, ok = QInputDialog.getText(self, "Add new UWB Anchor", "UWB Address:")
@@ -108,6 +111,15 @@ class TagInputDialog(QDialog):
         layout.addRow("IP:", self.ip_input)
         layout.addRow("Port:", self.port_input)
         layout.addWidget(button_box)
+
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+
+    def accept(self):
+        super().accept()
+
+    def reject(self):
+        super().reject()
 
     def get_inputs(self):
         return (self.uwb_address_input.text(), self.ip_input.text(), self.port_input.text())
