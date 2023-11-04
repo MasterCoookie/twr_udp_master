@@ -7,7 +7,7 @@ from random_startegy import RandomStrategy
 
 from multiprocessing import Queue, Process, Event
 
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout
 from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot
 
 ended = Event()
@@ -81,7 +81,9 @@ class MainWindow(QWidget):
         self.list_widget.addItem("Tag")
 
     def add_anchor(self):
-        self.list_widget.addItem("Anchor")
+        uwb_address, ok = QInputDialog.getText(self, "Add new UWB Anchor", "UWB Address:")
+        if ok:
+            self.list_widget.addItem(uwb_address)
 
     def remove_device(self):
         self.list_widget.takeItem(self.list_widget.currentRow())
@@ -89,9 +91,26 @@ class MainWindow(QWidget):
     def clear_devices(self):
         self.list_widget.clear()
 
-class AnchorInputDialog(QDialog):
+class TagInputDialog(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.setWindowTitle("Input Tag")
+
+        self.uwb_address_input = QLineEdit(self)
+        self.ip_input = QLineEdit(self)
+        self.port_input = QLineEdit(self)
+
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
+
+        layout = QFormLayout(self)
+        layout.addRow("UWB Address:", self.uwb_address_input)
+        layout.addRow("IP:", self.ip_input)
+        layout.addRow("Port:", self.port_input)
+        layout.addWidget(button_box)
+
+    def get_inputs(self):
+        return (self.uwb_address_input.text(), self.ip_input.text(), self.port_input.text())
 
 
 if __name__ == "__main__":
