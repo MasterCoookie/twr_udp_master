@@ -7,8 +7,8 @@ from random_startegy import RandomStrategy
 
 from multiprocessing import Queue, Process, Event
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget
-from PyQt5.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget
+from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot
 
 ended = Event()
 ended.clear()
@@ -38,15 +38,21 @@ class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.setup_ui()
+        self.show()
+
+    def setup_ui(self):
         self.setWindowTitle("JK - Queuer")
 
-        self.setMinimumSize(QSize(480, 240))
+        # self.setMinimumSize(QSize(480, 240))
+        self.setGeometry(50, 50, 480, 240)
         
         layout = QGridLayout(self)
         self.setLayout(layout)
 
         self.list_widget = QListWidget(self)
-        layout.addWidget(self.list_widget, 0, 0, 3, 2)
+        self.list_widget.addItem("Device")
+        layout.addWidget(self.list_widget, 0, 0, 3, 1)
 
         self.add_device_button = QPushButton("Add device", self)
         self.add_device_button.clicked.connect(self.add_device)
@@ -57,9 +63,22 @@ class MainWindow(QMainWindow):
         self.clear_devices_button = QPushButton("Clear devices", self)
         self.clear_devices_button.clicked.connect(self.clear_devices)
 
+        layout.addWidget(self.add_device_button, 0, 1)
+        layout.addWidget(self.remove_device_button, 1, 1)
+        layout.addWidget(self.clear_devices_button, 2, 1)
+
+    def add_device(self):
+        self.list_widget.addItem("Device")
+
+    def remove_device(self):
+        self.list_widget.takeItem(self.list_widget.currentRow())
+
+    def clear_devices(self):
+        self.list_widget.clear()
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
-    window.show()
-    sys.exit(app.exec_())
+    # window.show()
+    sys.exit(app.exec())
