@@ -44,15 +44,14 @@ class MainWindow(QWidget):
     def setup_ui(self):
         self.setWindowTitle("JK - Queuer")
 
-        # self.setMinimumSize(QSize(480, 240))
-        self.setGeometry(100, 100, 400, 100)
+        self.setGeometry(100, 100, 300, 100)
         
         layout = QGridLayout(self)
         self.setLayout(layout)
 
         self.list_widget = QListWidget(self)
         self.list_widget.addItem("Device")
-        layout.addWidget(self.list_widget, 0, 0, 4, 1)
+        layout.addWidget(self.list_widget, 0, 0, 3, 1)
 
         add_device_button = QPushButton("Add device", self)
         add_device_button.clicked.connect(self.add_device)
@@ -63,9 +62,13 @@ class MainWindow(QWidget):
         clear_devices_button = QPushButton("Clear devices", self)
         clear_devices_button.clicked.connect(self.clear_devices)
 
+        start_button = QPushButton("Start", self)
+        #TODO - connect
+
         layout.addWidget(add_device_button, 0, 1)
         layout.addWidget(remove_device_button, 1, 1)
         layout.addWidget(clear_devices_button, 2, 1)
+        layout.addWidget(start_button, 3, 0, 3, 1)
 
     def add_device(self):
         self.list_widget.addItem("Device")
@@ -80,5 +83,4 @@ class MainWindow(QWidget):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
-    # window.show()
     sys.exit(app.exec())
