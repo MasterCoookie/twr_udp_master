@@ -34,7 +34,7 @@ class Worker(QObject):
 
         self.udp_socket.bound_socket.close()
 
-class MainWindow(QMainWindow):
+class MainWindow(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -45,27 +45,27 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("JK - Queuer")
 
         # self.setMinimumSize(QSize(480, 240))
-        self.setGeometry(50, 50, 480, 240)
+        self.setGeometry(100, 100, 400, 100)
         
         layout = QGridLayout(self)
         self.setLayout(layout)
 
         self.list_widget = QListWidget(self)
         self.list_widget.addItem("Device")
-        layout.addWidget(self.list_widget, 0, 0, 3, 1)
+        layout.addWidget(self.list_widget, 0, 0, 4, 1)
 
-        self.add_device_button = QPushButton("Add device", self)
-        self.add_device_button.clicked.connect(self.add_device)
+        add_device_button = QPushButton("Add device", self)
+        add_device_button.clicked.connect(self.add_device)
 
-        self.remove_device_button = QPushButton("Remove device", self)
-        self.remove_device_button.clicked.connect(self.remove_device)
+        remove_device_button = QPushButton("Remove device", self)
+        remove_device_button.clicked.connect(self.remove_device)
 
-        self.clear_devices_button = QPushButton("Clear devices", self)
-        self.clear_devices_button.clicked.connect(self.clear_devices)
+        clear_devices_button = QPushButton("Clear devices", self)
+        clear_devices_button.clicked.connect(self.clear_devices)
 
-        layout.addWidget(self.add_device_button, 0, 1)
-        layout.addWidget(self.remove_device_button, 1, 1)
-        layout.addWidget(self.clear_devices_button, 2, 1)
+        layout.addWidget(add_device_button, 0, 1)
+        layout.addWidget(remove_device_button, 1, 1)
+        layout.addWidget(clear_devices_button, 2, 1)
 
     def add_device(self):
         self.list_widget.addItem("Device")
