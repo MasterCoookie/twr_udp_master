@@ -79,7 +79,8 @@ class MainWindow(QWidget):
     def add_tag(self):
         tag_input_dialog = TagInputDialog(self.anchors_list, self)
         if tag_input_dialog.exec():
-            uwb_address, ip, port = tag_input_dialog.get_inputs()
+            uwb_address, ip, port, anchors = tag_input_dialog.get_inputs()
+            print(anchors)
             self.list_widget.addItem(uwb_address)
             #TODO - add to list
 
@@ -94,6 +95,7 @@ class MainWindow(QWidget):
 
     def clear_devices(self):
         self.list_widget.clear()
+        self.anchors_list.clear()
 
 class TagInputDialog(QDialog):
     def __init__(self, anchors_list, *args, **kwargs):
@@ -107,17 +109,17 @@ class TagInputDialog(QDialog):
 
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
 
-        list_widget = QListWidget(self)
-        list_widget.addItems(anchors_list)
+        self.list_widget = QListWidget(self)
+        self.list_widget.addItems(anchors_list)
+        self.list_widget.setSelectionMode(QListWidget.SelectionMode.MultiSelection)
 
         layout = QFormLayout(self)
         layout.addRow("UWB Address:", self.uwb_address_input)
         layout.addRow("IP:", self.ip_input)
         layout.addRow("Port:", self.port_input)
-        layout.addRow("Anchors:", list_widget)
+        layout.addRow("Anchors:", self.list_widget)
 
         layout.addWidget(button_box)
-
 
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -129,7 +131,7 @@ class TagInputDialog(QDialog):
         super().reject()
 
     def get_inputs(self):
-        return (self.uwb_address_input.text(), self.ip_input.text(), self.port_input.text())
+        return (self.uwb_address_input.text(), self.ip_input.text(), self.port_input.text(), [item.text() for item in self.list_widget.selectedItems()])
 
 
 if __name__ == "__main__":
