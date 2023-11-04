@@ -38,6 +38,8 @@ class MainWindow(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.anchors_list = []
+
         self.setup_ui()
         self.show()
 
@@ -65,8 +67,6 @@ class MainWindow(QWidget):
         clear_devices_button = QPushButton("Clear devices", self)
         clear_devices_button.clicked.connect(self.clear_devices)
 
-
-
         start_button = QPushButton("Start", self)
         #TODO - connect
 
@@ -77,7 +77,7 @@ class MainWindow(QWidget):
         layout.addWidget(start_button, 4, 0, 4, 1)
 
     def add_tag(self):
-        tag_input_dialog = TagInputDialog(self)
+        tag_input_dialog = TagInputDialog(self.anchors_list, self)
         if tag_input_dialog.exec():
             uwb_address, ip, port = tag_input_dialog.get_inputs()
             self.list_widget.addItem(uwb_address)
@@ -87,6 +87,7 @@ class MainWindow(QWidget):
         uwb_address, ok = QInputDialog.getText(self, "Add new UWB Anchor", "UWB Address:")
         if ok:
             self.list_widget.addItem(uwb_address)
+            self.anchors_list.append(uwb_address)
 
     def remove_device(self):
         self.list_widget.takeItem(self.list_widget.currentRow())
@@ -95,7 +96,7 @@ class MainWindow(QWidget):
         self.list_widget.clear()
 
 class TagInputDialog(QDialog):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, anchors_list, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.setWindowTitle("Input Tag")
@@ -106,11 +107,17 @@ class TagInputDialog(QDialog):
 
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
 
+        list_widget = QListWidget(self)
+        list_widget.addItems(anchors_list)
+
         layout = QFormLayout(self)
         layout.addRow("UWB Address:", self.uwb_address_input)
         layout.addRow("IP:", self.ip_input)
         layout.addRow("Port:", self.port_input)
+        layout.addRow("Anchors:", list_widget)
+
         layout.addWidget(button_box)
+
 
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
