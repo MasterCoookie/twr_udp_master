@@ -92,6 +92,15 @@ class SetupWidget(QWidget):
         self.list_widget.clear()
         self.anchors_list.clear()
 
+class WorkingWidget(QWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.setup_ui()
+
+    def setup_ui(self):
+        pass
+
 
 class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
