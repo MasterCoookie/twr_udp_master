@@ -42,7 +42,32 @@ class SetupWidget(QWidget):
         self.setup_ui()
     
     def setup_ui(self):
-        pass
+        layout = QGridLayout(self)
+        self.setLayout(layout)
+
+        self.list_widget = QListWidget(self)
+        layout.addWidget(self.list_widget, 0, 0, 4, 1)
+
+        add_tag_button = QPushButton("Add Tag", self)
+        add_tag_button.clicked.connect(self.add_tag)
+
+        add_anchor_button = QPushButton("Add Anchor", self)
+        add_anchor_button.clicked.connect(self.add_anchor)
+
+        remove_device_button = QPushButton("Remove device", self)
+        remove_device_button.clicked.connect(self.remove_device)
+
+        clear_devices_button = QPushButton("Clear devices", self)
+        clear_devices_button.clicked.connect(self.clear_devices)
+
+        start_button = QPushButton("Start", self)
+        #TODO - connect
+
+        layout.addWidget(add_tag_button, 0, 1)
+        layout.addWidget(add_anchor_button, 1, 1)
+        layout.addWidget(remove_device_button, 2, 1)
+        layout.addWidget(clear_devices_button, 3, 1)
+        layout.addWidget(start_button, 4, 0, 4, 1)
 
     def add_tag(self):
         tag_input_dialog = TagInputDialog(self.anchors_list, self)
@@ -72,7 +97,6 @@ class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-
         self.setup_ui()
         self.show()
 
@@ -81,35 +105,8 @@ class MainWindow(QMainWindow):
 
         self.setGeometry(100, 100, 500, 100)
 
-        self.main_container = QWidget(self)
+        self.main_container = SetupWidget(self)
         
-        layout = QGridLayout(self.main_container)
-        self.main_container.setLayout(layout)
-
-        self.list_widget = QListWidget(self)
-        layout.addWidget(self.list_widget, 0, 0, 4, 1)
-
-        add_tag_button = QPushButton("Add Tag", self)
-        add_tag_button.clicked.connect(self.add_tag)
-
-        add_anchor_button = QPushButton("Add Anchor", self)
-        add_anchor_button.clicked.connect(self.add_anchor)
-
-        remove_device_button = QPushButton("Remove device", self)
-        remove_device_button.clicked.connect(self.remove_device)
-
-        clear_devices_button = QPushButton("Clear devices", self)
-        clear_devices_button.clicked.connect(self.clear_devices)
-
-        start_button = QPushButton("Start", self)
-        #TODO - connect
-
-        layout.addWidget(add_tag_button, 0, 1)
-        layout.addWidget(add_anchor_button, 1, 1)
-        layout.addWidget(remove_device_button, 2, 1)
-        layout.addWidget(clear_devices_button, 3, 1)
-        layout.addWidget(start_button, 4, 0, 4, 1)
-
         self.setCentralWidget(self.main_container)
 
     
