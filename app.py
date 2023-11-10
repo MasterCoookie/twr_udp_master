@@ -37,6 +37,8 @@ class Worker(QObject):
 class SetupWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.tags_dict = {}
         
         self.anchors_list = []
         self.setup_ui()
@@ -63,11 +65,16 @@ class SetupWidget(QWidget):
         start_button = QPushButton("Start", self)
         start_button.clicked.connect(self.parent().start)
 
+        test_button = QPushButton("Test Tag", self)
+        test_button.clicked.connect(self.test_tag)
+
+
         layout.addWidget(add_tag_button, 0, 1)
         layout.addWidget(add_anchor_button, 1, 1)
         layout.addWidget(remove_device_button, 2, 1)
         layout.addWidget(clear_devices_button, 3, 1)
         layout.addWidget(start_button, 4, 0, 4, 1)
+        layout.addWidget(test_button, 4, 1, 4, 1)
 
     def add_tag(self):
         tag_input_dialog = TagInputDialog(self.anchors_list, self)
@@ -91,6 +98,11 @@ class SetupWidget(QWidget):
     def clear_devices(self):
         self.list_widget.clear()
         self.anchors_list.clear()
+
+    def test_tag(self):
+        test_socket = UDPSocket(5000, 1)
+        test_socket.send(b"TEST", )
+
 
 class WorkingWidget(QWidget):
     def __init__(self, *args, **kwargs):
