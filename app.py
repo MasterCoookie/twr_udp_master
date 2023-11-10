@@ -34,7 +34,7 @@ class Worker(QObject):
 
         self.udp_socket.bound_socket.close()
 
-class MainWindow(QWidget):
+class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -47,9 +47,11 @@ class MainWindow(QWidget):
         self.setWindowTitle("JK - Queuer")
 
         self.setGeometry(100, 100, 500, 100)
+
+        self.main_container = QWidget(self)
         
-        layout = QGridLayout(self)
-        self.setLayout(layout)
+        layout = QGridLayout(self.main_container)
+        self.main_container.setLayout(layout)
 
         self.list_widget = QListWidget(self)
         layout.addWidget(self.list_widget, 0, 0, 4, 1)
@@ -74,6 +76,8 @@ class MainWindow(QWidget):
         layout.addWidget(remove_device_button, 2, 1)
         layout.addWidget(clear_devices_button, 3, 1)
         layout.addWidget(start_button, 4, 0, 4, 1)
+
+        self.setCentralWidget(self.main_container)
 
     def add_tag(self):
         tag_input_dialog = TagInputDialog(self.anchors_list, self)
