@@ -7,7 +7,7 @@ from random_startegy import RandomStrategy
 
 from multiprocessing import Queue, Process, Event
 
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel
 from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot
 
 ended = Event()
@@ -102,6 +102,11 @@ class WorkingWidget(QWidget):
         layout = QGridLayout(self)
         self.setLayout(layout)
 
+        #add label with widget name
+        self.label = QLabel("Working", self)
+        layout.addWidget(self.label, 0, 0)
+
+
 class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -115,11 +120,12 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 500, 100)
 
         self.setup_widget = SetupWidget(self)
-        self.working_widget = WorkingWidget(self)
+        
         
         self.setCentralWidget(self.setup_widget)
     
     def start(self):
+        self.working_widget = WorkingWidget(self)
         self.setCentralWidget(self.working_widget)
 
 
