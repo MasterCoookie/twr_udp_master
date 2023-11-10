@@ -47,7 +47,7 @@ class UDPSocket:
             return None, None
         except socket.error as error:
             if verbose:
-                print("Socket error: {error}")
+                print(f"Socket error: {error}")
             return None, None
 
     #TODO - rename
