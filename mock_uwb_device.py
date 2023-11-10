@@ -7,16 +7,16 @@ from helper_functions import *
 from threading import Thread, Event
 from random import randint
 
-def uwb_mock(port, ended, verbose=False):
+def uwb_mock(num, ended, verbose=False):
     receiver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    receiver_socket.bind(('127.0.0.1', port))
+    receiver_socket.bind((f'127.0.0.{num}', 5000 + num))
     receiver_socket.settimeout(.5)
 
     while not ended.is_set():
         try:
             message_received, address = receiver_socket.recvfrom(1024)
             if verbose:
-                print(f"Mock on port {port} has received message: {message_received.decode()} from {address}")
+                print(f"Mock nr {num} has received message: {message_received.decode()} from {address}")
 
             rand_distance_1 = randint(0, 100)
             rand_distance_2 = randint(0, 100)
@@ -38,10 +38,10 @@ if __name__ == "__main__":
 
     threads = []
     for i in range(count):
-        threads.append(Thread(target=uwb_mock, args=(5000 + i, ended, True)))
+        threads.append(Thread(target=uwb_mock, args=(i + 1, ended, True)))
         threads[-1].start()
 
-    input("Starting... Press enter to end...\n")
+    input("Starting... Mash enter to end...\n")
     time.sleep(1)
 
     ended.set()
