@@ -7,7 +7,11 @@ class CompleteRandomStrategy(QueuingStrategy):
         super().__init__()
 
     def prepare_queue(self, tags_dict):
-        for tag in tags_dict.values():
-            anchor = tag.available_devices.pop(randint(0, len(tag.available_devices) - 1))
+        tags_queues = []
+        for index, tag in enumerate(tags_dict.values()):
+            available_copy = tag.available_devices.copy()
+            while len(available_copy) > 0:
+                anchor = available_copy.pop(randint(0, len(available_copy) - 1))
+
             self.prepared_queue.put((anchor.uwb_address.encode(), tag.ip, tag.device_port))
 

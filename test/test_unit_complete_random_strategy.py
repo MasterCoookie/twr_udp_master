@@ -13,7 +13,17 @@ class TestQueuer(unittest.TestCase):
         tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "DD", [anchor_1, anchor_2]), "192.168.0.113": UWBTag("192.168.0.113", 7, "EE", [anchor_1, anchor_2])}
         self.queuer = Queuer(tags_dict, CompleteRandomStrategy())
     
+    def check_queue_contents(self, queue):
+        while not queue.empty():
+            message_encoded, ip, target_port = queue.get()
+
+            print(message_encoded, ip, target_port)
+
+            self.assertIsInstance(message_encoded, bytes)
+            self.assertIsInstance(ip, str)
+            self.assertIsInstance(target_port, int)
+    
     def test_prepare_queue(self):
         self.queuer.encode_queue()
         self.queuer.prepare_queue(self.queuer.tags_dict)
-        self.assertGreaterEqual(self.queuer.prepared_queue.qsize(), 2)
+        self.assertqual(self.queuer.prepared_queue.qsize(), 4)
