@@ -34,11 +34,44 @@ class Worker(QObject):
 
         self.udp_socket.bound_socket.close()
 
+class SetupWidget(QWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.anchors_list = []
+        self.setup_ui()
+    
+    def setup_ui(self):
+        pass
+
+    def add_tag(self):
+        tag_input_dialog = TagInputDialog(self.anchors_list, self)
+        if tag_input_dialog.exec():
+            uwb_address, ip, port, anchors = tag_input_dialog.get_inputs()
+            print(anchors)
+            self.list_widget.addItem(uwb_address)
+            #TODO - add to list
+
+    def add_anchor(self):
+        uwb_address, ok = QInputDialog.getText(self, "Add new UWB Anchor", "UWB Address:")
+        if ok:
+            self.list_widget.addItem(uwb_address)
+            self.anchors_list.append(uwb_address)
+
+    def remove_device(self):
+        if(self.list_widget.currentItem()):
+            self.anchors_list.remove(self.list_widget.currentItem().text())
+            self.list_widget.takeItem(self.list_widget.currentRow())
+
+    def clear_devices(self):
+        self.list_widget.clear()
+        self.anchors_list.clear()
+
+
 class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.anchors_list = []
 
         self.setup_ui()
         self.show()
@@ -79,28 +112,7 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(self.main_container)
 
-    def add_tag(self):
-        tag_input_dialog = TagInputDialog(self.anchors_list, self)
-        if tag_input_dialog.exec():
-            uwb_address, ip, port, anchors = tag_input_dialog.get_inputs()
-            print(anchors)
-            self.list_widget.addItem(uwb_address)
-            #TODO - add to list
-
-    def add_anchor(self):
-        uwb_address, ok = QInputDialog.getText(self, "Add new UWB Anchor", "UWB Address:")
-        if ok:
-            self.list_widget.addItem(uwb_address)
-            self.anchors_list.append(uwb_address)
-
-    def remove_device(self):
-        if(self.list_widget.currentItem()):
-            self.anchors_list.remove(self.list_widget.currentItem().text())
-            self.list_widget.takeItem(self.list_widget.currentRow())
-
-    def clear_devices(self):
-        self.list_widget.clear()
-        self.anchors_list.clear()
+    
 
 class TagInputDialog(QDialog):
     def __init__(self, anchors_list, *args, **kwargs):
