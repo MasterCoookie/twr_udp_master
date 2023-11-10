@@ -61,7 +61,7 @@ class SetupWidget(QWidget):
         clear_devices_button.clicked.connect(self.clear_devices)
 
         start_button = QPushButton("Start", self)
-        #TODO - connect
+        start_button.clicked.connect(self.parent().start)
 
         layout.addWidget(add_tag_button, 0, 1)
         layout.addWidget(add_anchor_button, 1, 1)
@@ -99,8 +99,8 @@ class WorkingWidget(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
-        pass
-
+        layout = QGridLayout(self)
+        self.setLayout(layout)
 
 class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
@@ -114,9 +114,14 @@ class MainWindow(QMainWindow):
 
         self.setGeometry(100, 100, 500, 100)
 
-        self.main_container = SetupWidget(self)
+        self.setup_widget = SetupWidget(self)
+        self.working_widget = WorkingWidget(self)
         
-        self.setCentralWidget(self.main_container)
+        self.setCentralWidget(self.setup_widget)
+    
+    def start(self):
+        self.setCentralWidget(self.working_widget)
+
 
     
 
