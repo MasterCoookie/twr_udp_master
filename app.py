@@ -7,8 +7,8 @@ from random_startegy import RandomStrategy
 
 from multiprocessing import Queue, Process, Event
 
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel
-from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle
+from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot, Qt
 
 ended = Event()
 ended.clear()
@@ -48,7 +48,7 @@ class SetupWidget(QWidget):
         self.setLayout(layout)
 
         self.list_widget = QListWidget(self)
-        layout.addWidget(self.list_widget, 0, 0, 4, 1)
+        layout.addWidget(self.list_widget, 0, 0, 4, 3)
 
         add_tag_button = QPushButton("Add Tag", self)
         add_tag_button.clicked.connect(self.add_tag)
@@ -68,12 +68,24 @@ class SetupWidget(QWidget):
         test_button = QPushButton("Test Tag", self)
         test_button.clicked.connect(self.test_tag)
 
-        layout.addWidget(add_tag_button, 0, 1)
-        layout.addWidget(add_anchor_button, 1, 1)
-        layout.addWidget(remove_device_button, 2, 1)
-        layout.addWidget(clear_devices_button, 3, 1)
-        layout.addWidget(start_button, 4, 0, 4, 1)
-        layout.addWidget(test_button, 4, 1, 4, 1)
+        self.result_label = QLabel("Result", self)
+
+        pixmapi = getattr(QStyle.StandardPixmap, "SP_MediaPlay")
+        self.set_icon(pixmapi)
+
+
+        layout.addWidget(add_tag_button, 0, 3)
+        layout.addWidget(add_anchor_button, 1, 3)
+        layout.addWidget(remove_device_button, 2, 3)
+        layout.addWidget(clear_devices_button, 3, 3)
+        layout.addWidget(start_button, 4, 0, 4, 2)
+        layout.addWidget(test_button, 4, 3, 4, 1)
+        layout.addWidget(self.result_label, 4, 2, 4, 1)
+    
+    def set_icon(self, pix):
+        icon = self.style().standardIcon(pix)
+        self.result_label.setPixmap(icon.pixmap(QSize(16, 16)))
+        self.result_label.setAlignment(Qt.AlignmentFlag.AlignRight)
 
     def add_tag(self):
         tag_input_dialog = TagInputDialog(self.anchors_list, self)
