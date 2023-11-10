@@ -13,7 +13,7 @@ class TestCompleteRandomStrategy(unittest.TestCase):
         anchor_1 = UWBDevice(None, None, "AA")
         anchor_2 = UWBDevice(None, None, "BB")
         tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "DD", [anchor_1, anchor_2]), "192.168.0.113": UWBTag("192.168.0.113", 7, "EE", [anchor_1, anchor_2])}
-        self.queuer = Queuer(tags_dict, CompleteRandomStrategy())
+        self.queuer = Queuer(tags_dict, CompleteRandomStrategy(), queue_lower_limit=4, queue_upper_limit=4)
     
     def check_queue_contents(self, queue):
         while not queue.empty():
@@ -30,5 +30,5 @@ class TestCompleteRandomStrategy(unittest.TestCase):
 
         self.queuer.encode_queue()
         self.queuer.fill_queue(q)
-        self.assertEqual(self.queuer.prepared_queue.qsize(), 4)
-        self.check_queue_contents(self.queuer.prepared_queue)
+        self.assertEqual(q.qsize(), 4)
+        self.check_queue_contents(q)
