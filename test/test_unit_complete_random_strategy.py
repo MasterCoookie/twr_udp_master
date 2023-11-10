@@ -16,6 +16,8 @@ class TestCompleteRandomStrategy(unittest.TestCase):
         self.queuer = Queuer(tags_dict, CompleteRandomStrategy(), queue_lower_limit=4, queue_upper_limit=4)
     
     def check_queue_contents(self, queue):
+        messages = []
+
         while not queue.empty():
             message_encoded, ip, target_port = queue.get()
 
@@ -24,6 +26,12 @@ class TestCompleteRandomStrategy(unittest.TestCase):
             self.assertIsInstance(message_encoded, bytes)
             self.assertIsInstance(ip, str)
             self.assertIsInstance(target_port, int)
+
+            messages.append(message_encoded.decode())
+
+        self.assertEqual(messages.count("AA"), 2)
+        self.assertEqual(messages.count("BB"), 2)
+
     
     def test_prepare_queue(self):
         q = Queue()
