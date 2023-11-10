@@ -16,8 +16,6 @@ class CompleteRandomStrategy(QueuingStrategy):
                 tags_queues[index].append((tag, anchor))
                 total_count += 1
         
-        print(tags_queues)
-
         for _ in range(total_count):
             i = 0
             while i < len(tags_queues):
