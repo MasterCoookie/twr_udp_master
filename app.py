@@ -68,7 +68,6 @@ class SetupWidget(QWidget):
         test_button = QPushButton("Test Tag", self)
         test_button.clicked.connect(self.test_tag)
 
-
         layout.addWidget(add_tag_button, 0, 1)
         layout.addWidget(add_anchor_button, 1, 1)
         layout.addWidget(remove_device_button, 2, 1)
@@ -80,9 +79,9 @@ class SetupWidget(QWidget):
         tag_input_dialog = TagInputDialog(self.anchors_list, self)
         if tag_input_dialog.exec():
             uwb_address, ip, port, anchors = tag_input_dialog.get_inputs()
-            print(anchors)
+            # print(anchors)
             self.list_widget.addItem(uwb_address)
-            #TODO - add to list
+            self.tags_dict[uwb_address] = (ip, port, anchors)
 
     def add_anchor(self):
         uwb_address, ok = QInputDialog.getText(self, "Add new UWB Anchor", "UWB Address:")
@@ -101,7 +100,16 @@ class SetupWidget(QWidget):
 
     def test_tag(self):
         test_socket = UDPSocket(5000, 1)
-        test_socket.send(b"TEST", )
+        tag_uwb_address = self.list_widget.currentItem().text()
+        tag = self.tags_dict[tag_uwb_address]
+        test_socket.send(b"TEST", tag[0], int(tag[1]))
+        result = test_socket.receive(verbose=True)
+        if result[0] is None:
+            print("No response!")
+        else:
+            print(f"Response: {result[0].decode()}")
+        test_socket.bound_socket.close()
+
 
 
 class WorkingWidget(QWidget):
