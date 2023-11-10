@@ -20,7 +20,7 @@ def uwb_mock(port, ended, verbose=False):
 
             rand_distance_1 = randint(0, 100)
             rand_distance_2 = randint(0, 100)
-            rand_distance_full = str(rand_distance_1) + "." + str(rand_distance_2) + "m"
+            rand_distance_full = str(rand_distance_1) + "." + str(rand_distance_2) + "m\n"
 
             time.sleep(randint(0, 50) / 1000)
 
@@ -39,8 +39,10 @@ if __name__ == "__main__":
     threads = []
     for i in range(count):
         threads.append(Thread(target=uwb_mock, args=(5000 + i, ended, True)))
+        threads[-1].start()
 
-    input("Press enter to end")
+    input("Starting... Press enter to end...\n")
+    time.sleep(1)
 
     ended.set()
     for thread in threads:
