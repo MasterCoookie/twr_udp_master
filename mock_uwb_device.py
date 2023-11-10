@@ -27,7 +27,7 @@ def uwb_mock(num, ended, verbose=False):
             receiver_socket.sendto(f'DIST: {rand_distance_full}'.encode(), address)
         except socket.timeout:
             if verbose:
-                print("Helpers: Receiver socket timeout!")
+                print(f"Mock 127.0.0.{num}: Receiver socket timeout!")
 
     receiver_socket.close()
 

@@ -117,9 +117,11 @@ class SetupWidget(QWidget):
         test_socket.send(b"TEST", tag[0], int(tag[1]))
         result = test_socket.receive(verbose=True)
         if result[0] is None:
-            print("No response!")
+            pixmapi = getattr(QStyle.StandardPixmap, "SP_DialogCancelButton")
+            self.set_icon(pixmapi)
         else:
-            print(f"Response: {result[0].decode()}")
+            pixmapi = getattr(QStyle.StandardPixmap, "SP_DialogApplyButton")
+            self.set_icon(pixmapi)
         test_socket.bound_socket.close()
 
 
