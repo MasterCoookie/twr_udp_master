@@ -1,11 +1,13 @@
 import unittest
 
+from multiprocessing import Queue
+
 from complete_random_strategy import CompleteRandomStrategy
 from uwb_tag import UWBTag
 from uwb_device import UWBDevice
 from queuer import Queuer
 
-class TestQueuer(unittest.TestCase):
+class TestCompleteRandomStrategy(unittest.TestCase):
     def setUp(self) -> None:
         print("Testing complete random strategy")
         anchor_1 = UWBDevice(None, None, "AA")
@@ -24,6 +26,9 @@ class TestQueuer(unittest.TestCase):
             self.assertIsInstance(target_port, int)
     
     def test_prepare_queue(self):
+        q = Queue()
+
         self.queuer.encode_queue()
-        self.queuer.prepare_queue(self.queuer.tags_dict)
-        self.assertqual(self.queuer.prepared_queue.qsize(), 4)
+        self.queuer.fill_queue(q)
+        self.assertEqual(self.queuer.prepared_queue.qsize(), 4)
+        self.check_queue_contents(self.queuer.prepared_queue)
