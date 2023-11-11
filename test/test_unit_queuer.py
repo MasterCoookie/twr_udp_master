@@ -97,24 +97,27 @@ class TestQueuer(unittest.TestCase):
             'DD': ('127.0.0.2', 5002, ['EE', 'FF', 'GG'])
         }
         queuer = Queuer(None, RandomStrategy())
-        queuer.generate_dict(tags)
+        generated = queuer.generate_dict(tags)
 
-        self.assertEqual(len(queuer.tags_dict), 2)
+        self.assertEqual(len(generated), 2)
 
-        self.assertIsInstance(queuer.tags_dict['AA'], UWBTag)
-        self.assertIsInstance(queuer.tags_dict['DD'], UWBTag)
+        self.assertIsInstance(generated['AA'], UWBTag)
+        self.assertIsInstance(generated['DD'], UWBTag)
 
-        self.assertIsInstance(queuer.tags_dict['AA'].anchors[0], UWBDevice)
-        self.assertIsInstance(queuer.tags_dict['AA'].anchors[1], UWBDevice)
-        self.assertIsInstance(queuer.tags_dict['DD'].anchors[0], UWBDevice)
-        self.assertIsInstance(queuer.tags_dict['DD'].anchors[1], UWBDevice)
+        self.assertIsInstance(generated['AA'].available_devices[0], UWBDevice)
+        self.assertIsInstance(generated['AA'].available_devices[1], UWBDevice)
+        self.assertIsInstance(generated['DD'].available_devices[0], UWBDevice)
+        self.assertIsInstance(generated['DD'].available_devices[1], UWBDevice)
 
-        self.assertEqual(queuer.tags_dict['AA'].ip, '127.0.0.1')
-        self.assertEqual(queuer.tags_dict['AA'].port, 5001)
-        self.assertEqual(queuer.tags_dict['DD'].ip, '127.0.0.2')
-        self.assertEqual(queuer.tags_dict['DD'].port, 5002)
+        self.assertEqual(generated['AA'].ip, '127.0.0.1')
+        self.assertEqual(generated['AA'].device_port, 5001)
+        self.assertEqual(generated['DD'].ip, '127.0.0.2')
+        self.assertEqual(generated['DD'].device_port, 5002)
 
-        self.assertEqual(queuer.tags_dict['AA'].anchors[0].uwb_address, 'BB')
+        self.assertEqual(generated['AA'].available_devices[0].uwb_address, 'BB')
+        self.assertEqual(generated['AA'].available_devices[1].uwb_address, 'CC')
+        self.assertEqual(generated['DD'].available_devices[0].uwb_address, 'EE')
+        self.assertEqual(generated['DD'].available_devices[1].uwb_address, 'FF')
 
 
 if __name__ == "__main__":

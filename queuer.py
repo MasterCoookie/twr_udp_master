@@ -1,5 +1,8 @@
 from multiprocessing import Queue
 
+from uwb_tag import UWBTag
+from uwb_device import UWBDevice
+
 class Queuer:
     def __init__(self, tags_dict, queuing_strategy, queue_lower_limit=3, queue_upper_limit=5):
         self.tags_dict = tags_dict
@@ -35,5 +38,14 @@ class Queuer:
 
     def results_decode(self, message_encoded):
         pass
+
+    def generate_dict(self, ui_passed_dict):
+        generated_dict = {}
+        for key, value in ui_passed_dict.items():
+            tag_available_devices = [UWBDevice(None, None, device_addr) for device_addr in value[2]]
+            tag = UWBTag(ip=value[0], uwb_address=key, device_port=value[1], available_devices=tag_available_devices)
+            generated_dict[key] = tag
+        
+        return generated_dict
     
     
