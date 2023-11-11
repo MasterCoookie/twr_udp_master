@@ -1,10 +1,10 @@
 import sys
 import time
-import logging
 
 from queuer import Queuer
 from udp_socket import UDPSocket
 from random_startegy import RandomStrategy
+from base_logger import logger, QPlainTextEditLogger
 
 from multiprocessing import Queue, Process, Event
 
@@ -41,7 +41,7 @@ class Worker(QObject):
         p2.start()
 
         while not ended.is_set():
-            print("dupa")
+            # logger.warning('DUPA')
             time.sleep(.1)
 
         # for _ in range(10):
@@ -145,19 +145,6 @@ class SetupWidget(QWidget):
         test_socket.bound_socket.close()
 
 
-class QPlainTextEditLogger(logging.Handler):
-    def __init__(self, parent):
-        super(QPlainTextEditLogger, self).__init__()
-        self.widget = QPlainTextEdit(parent)
-        self.widget.setReadOnly(True)
-
-    def emit(self, record):
-        msg = self.format(record)
-        self.widget.appendPlainText(msg)
-    
-    def write(self, m):
-        pass
-
 class CounterLabel(QLabel):
     def __init__(self, label_text, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -185,9 +172,9 @@ class WorkingWidget(QWidget):
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.logger = QPlainTextEditLogger(self)
-        self.logger.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-        logging.getLogger().addHandler(self.logger)
-        logging.getLogger().setLevel(logging.DEBUG)
+        self.logger.setFormatter(logger.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logger.getLogger().addHandler(self.logger)
+        logger.getLogger().setLevel(logger.DEBUG)
 
         self.total_counter = CounterLabel("Total", self)
         self.success_counter = CounterLabel("Successes:", self)
