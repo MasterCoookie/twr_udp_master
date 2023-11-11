@@ -15,37 +15,44 @@ ended = Event()
 ended.clear()
 
 class Worker(QObject):
+    def __init__(self, tags_dict, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.tags_dict = tags_dict
+
+
     msg_q = Queue()
     result_q = Queue()
 
     finished = Signal()
 
-    def do_work(self, tags_list):
-        self.queuer = Queuer(tags_list, RandomStrategy())
+    def do_work(self, ):
+        # tags_list = {'AA': ('127.0.0.1', 5001, ['BB'])}
+        self.queuer = Queuer(self.tags_dict, RandomStrategy())
         self.udp_socket = UDPSocket(5000, 2, post_send_delay=1)
 
-        self.queuer.tags_dict = self.queuer.generate_dict(tags_list)
+        self.queuer.tags_dict = self.queuer.generate_dict(self.tags_dict)
 
-        # p1 = Process(target=self.queuer.queing_process, args=(ended, self.msg_q))
-        # p2 = Process(target=self.udp_socket.sending_process, args=(ended, self.msg_q, self.result_q))
+        p1 = Process(target=self.queuer.queing_process, args=(ended, self.msg_q))
+        p2 = Process(target=self.udp_socket.sending_process, args=(ended, self.msg_q, self.result_q))
 
-        # p1.start()
+        p1.start()
         # time to prepare first queue
         time.sleep(.1)
-        # p2.start()
+        p2.start()
 
-        # while not ended.is_set():
-        #     print("dupa")
-        #     time.sleep(.1)
+        while not ended.is_set():
+            print("dupa")
+            time.sleep(.1)
 
-        for _ in range(10):
-            time.sleep(1)
-            print("Dupa")
+        # for _ in range(10):
+        #     time.sleep(1)
+        #     print("Dupa")
 
-        # p1.join()
-        # p2.join()
+        p1.join()
+        p2.join()
 
         self.udp_socket.bound_socket.close()
+        self.finished.emit()
 
 class SetupWidget(QWidget):
     def __init__(self, *args, **kwargs):
@@ -215,17 +222,6 @@ class MainWindow(QMainWindow):
         super().__init__(*args, **kwargs)
 
         self.setup_ui()
-        
-
-        self.worker = Worker()
-        self.worker_thread = QThread()
-        self.worker.moveToThread(self.worker_thread)
-
-        self.worker_thread.started.connect(lambda: self.worker.do_work(self.setup_widget.tags_dict))
-        self.worker.finished.connect(self.worker_thread.quit)
-        self.worker.finished.connect(self.worker.deleteLater)
-
-        self.worker_thread.finished.connect(self.worker_thread.deleteLater)
 
         self.show()
         
@@ -237,6 +233,7 @@ class MainWindow(QMainWindow):
         self.setup_widget = SetupWidget(self)
         
         self.setCentralWidget(self.setup_widget)
+        
     
     def start(self):
         self.working_widget = WorkingWidget(self)
@@ -244,6 +241,16 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("JK Queuer - Working")
 
         print(self.setup_widget.tags_dict)
+
+        self.worker = Worker(self.setup_widget.tags_dict)
+        self.worker_thread = QThread()
+        self.worker.moveToThread(self.worker_thread)
+
+        self.worker_thread.started.connect(self.worker.do_work)
+        self.worker.finished.connect(self.worker_thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+
+        self.worker_thread.finished.connect(self.worker_thread.deleteLater)
 
         self.worker_thread.start()
 

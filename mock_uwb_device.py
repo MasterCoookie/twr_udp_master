@@ -9,7 +9,7 @@ from random import randint
 
 def uwb_mock(num, ended, verbose=False):
     receiver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    receiver_socket.bind((f'127.0.0.{num}', 5000 + num - 1))
+    receiver_socket.bind((f'127.0.0.{num}', 5000 + num))
     receiver_socket.settimeout(.5)
 
     while not ended.is_set():
