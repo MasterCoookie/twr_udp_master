@@ -18,9 +18,13 @@ class Worker(QObject):
     msg_q = Queue()
     result_q = Queue()
 
+    finished = Signal()
+
     def do_work(self, tags_list):
         self.queuer = Queuer(tags_list, RandomStrategy())
-        self.udp_socket = UDPSocket(5000, 2)
+        self.udp_socket = UDPSocket(5000, 2, post_send_delay=1)
+
+        self.queuer.tags_dict = self.queuer.generate_dict(tags_list)
 
         p1 = Process(target=self.queuer.queing_process, args=(ended, self.msg_q))
         p2 = Process(target=self.udp_socket.sending_process, args=(ended, self.msg_q, self.result_q))
@@ -29,6 +33,9 @@ class Worker(QObject):
         # time to prepare first queue
         time.sleep(.1)
         p2.start()
+
+        while not ended.is_set():
+            pass
 
         p1.join()
         p2.join()
@@ -188,7 +195,7 @@ class WorkingWidget(QWidget):
         layout.addWidget(end_button, 3, 2, 1, 3)
     
     def end(self):
-        pass
+        ended.set()
 
     # To remember the lvls
     # def test(self):
@@ -223,6 +230,14 @@ class MainWindow(QMainWindow):
         self.worker = Worker()
         self.thread = QThread()
         self.worker.moveToThread(self.thread)
+
+        self.thread.started.connect(lambda: self.worker.do_work(self.setup_widget.tags_dict))
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+
+        self.thread.finished.connect(self.thread.deleteLater)
+
+        self.thread.start()
 
 
         
