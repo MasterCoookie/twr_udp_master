@@ -1,5 +1,6 @@
 import sys
 import time
+import logging
 
 from queuer import Queuer
 from udp_socket import UDPSocket
@@ -7,7 +8,7 @@ from random_startegy import RandomStrategy
 
 from multiprocessing import Queue, Process, Event
 
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit
 from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot, Qt
 
 ended = Event()
@@ -125,6 +126,19 @@ class SetupWidget(QWidget):
         test_socket.bound_socket.close()
 
 
+class QPlainTextEditLogger(logging.Handler):
+    def __init__(self, parent):
+        super(QPlainTextEditLogger, self).__init__()
+        self.widget = QPlainTextEdit(parent)
+        self.widget.setReadOnly(True)
+
+    def emit(self, record):
+        msg = self.format(record)
+        self.widget.appendPlainText(msg)
+    
+    def write(self, m):
+        pass
+
 
 class WorkingWidget(QWidget):
     def __init__(self, *args, **kwargs):
@@ -136,9 +150,26 @@ class WorkingWidget(QWidget):
         layout = QGridLayout(self)
         self.setLayout(layout)
 
-        #add label with widget name
         self.label = QLabel("Working", self)
-        layout.addWidget(self.label, 0, 0)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.logger = QPlainTextEditLogger(self)
+        logging.getLogger().addHandler(self.logger)
+        logging.getLogger().setLevel(logging.DEBUG)
+
+        self.testbutton = QPushButton("Test", self)
+        self.testbutton.clicked.connect(self.test)
+
+
+        layout.addWidget(self.label, 0, 1)
+        layout.addWidget(self.logger.widget, 1, 0, 1, 3)
+        layout.addWidget(self.testbutton, 2, 1)
+
+    def test(self):
+        logging.debug('damn, a bug')
+        logging.info('something to remember')
+        logging.warning('that\'s not right')
+        logging.error('foobar')
 
 
 class MainWindow(QMainWindow):
@@ -149,7 +180,7 @@ class MainWindow(QMainWindow):
         self.show()
 
     def setup_ui(self):
-        self.setWindowTitle("JK - Queuer")
+        self.setWindowTitle("JK Queuer - Setup")
 
         self.setGeometry(100, 100, 500, 100)
 
@@ -161,6 +192,7 @@ class MainWindow(QMainWindow):
     def start(self):
         self.working_widget = WorkingWidget(self)
         self.setCentralWidget(self.working_widget)
+        self.setWindowTitle("JK Queuer - Working")
 
 
     
