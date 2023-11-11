@@ -91,7 +91,31 @@ class TestQueuer(unittest.TestCase):
         print("Finished testing queuer")
 
 
-        
+    def test_generate_dict(self):
+        tags = {
+            'AA': ('127.0.0.1', 5001, ['BB',  'CC']),
+            'DD': ('127.0.0.2', 5002, ['EE', 'FF', 'GG'])
+        }
+        queuer = Queuer(None, RandomStrategy())
+        queuer.generate_dict(tags)
+
+        self.assertEqual(len(queuer.tags_dict), 2)
+
+        self.assertIsInstance(queuer.tags_dict['AA'], UWBTag)
+        self.assertIsInstance(queuer.tags_dict['DD'], UWBTag)
+
+        self.assertIsInstance(queuer.tags_dict['AA'].anchors[0], UWBDevice)
+        self.assertIsInstance(queuer.tags_dict['AA'].anchors[1], UWBDevice)
+        self.assertIsInstance(queuer.tags_dict['DD'].anchors[0], UWBDevice)
+        self.assertIsInstance(queuer.tags_dict['DD'].anchors[1], UWBDevice)
+
+        self.assertEqual(queuer.tags_dict['AA'].ip, '127.0.0.1')
+        self.assertEqual(queuer.tags_dict['AA'].port, 5001)
+        self.assertEqual(queuer.tags_dict['DD'].ip, '127.0.0.2')
+        self.assertEqual(queuer.tags_dict['DD'].port, 5002)
+
+        self.assertEqual(queuer.tags_dict['AA'].anchors[0].uwb_address, 'BB')
+
 
 if __name__ == "__main__":
     unittest.main()
