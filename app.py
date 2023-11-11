@@ -174,6 +174,10 @@ class WorkingWidget(QWidget):
         self.success_counter = CounterLabel("Successes:", self)
         self.timeout_counter = CounterLabel("Timeouts:", self)
         self.error_counter = CounterLabel("Errors:", self)
+    
+        end_button = QPushButton("End", self)
+        end_button.clicked.connect(self.end)
+
 
         layout.addWidget(self.label, 0, 3)
         layout.addWidget(self.total_counter, 1, 0)
@@ -181,6 +185,10 @@ class WorkingWidget(QWidget):
         layout.addWidget(self.timeout_counter, 1, 4)
         layout.addWidget(self.error_counter, 1, 6)
         layout.addWidget(self.logger.widget, 2, 0, 1, 7)
+        layout.addWidget(end_button, 3, 2, 1, 3)
+    
+    def end(self):
+        pass
 
     # To remember the lvls
     # def test(self):
@@ -205,6 +213,7 @@ class MainWindow(QMainWindow):
         self.setup_widget = SetupWidget(self)
         
         
+        
         self.setCentralWidget(self.setup_widget)
     
     def start(self):
@@ -212,8 +221,12 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.working_widget)
         self.setWindowTitle("JK Queuer - Working")
 
+        self.worker = Worker()
+        self.thread = QThread()
+        self.worker.moveToThread(self.thread)
 
-    
+
+        
 
 class TagInputDialog(QDialog):
     def __init__(self, anchors_list, *args, **kwargs):
