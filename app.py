@@ -1,5 +1,6 @@
 import sys
 import time
+import logging
 
 from queuer import Queuer
 from udp_socket import UDPSocket
@@ -7,7 +8,7 @@ from random_startegy import RandomStrategy
 
 from multiprocessing import Queue, Process, Event
 
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit
 from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot, Qt
 
 ended = Event()
@@ -125,6 +126,31 @@ class SetupWidget(QWidget):
         test_socket.bound_socket.close()
 
 
+class QPlainTextEditLogger(logging.Handler):
+    def __init__(self, parent):
+        super(QPlainTextEditLogger, self).__init__()
+        self.widget = QPlainTextEdit(parent)
+        self.widget.setReadOnly(True)
+
+    def emit(self, record):
+        msg = self.format(record)
+        self.widget.appendPlainText(msg)
+    
+    def write(self, m):
+        pass
+
+class CounterLabel(QLabel):
+    def __init__(self, label_text, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.counter = 0
+        self.label_text = label_text
+        self.setText(f"{self.label_text} {self.counter}")
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+    def increment(self):
+        self.counter += 1
+        self.setText(f"{self.label_text} {self.counter}")
 
 class WorkingWidget(QWidget):
     def __init__(self, *args, **kwargs):
@@ -136,9 +162,40 @@ class WorkingWidget(QWidget):
         layout = QGridLayout(self)
         self.setLayout(layout)
 
-        #add label with widget name
         self.label = QLabel("Working", self)
-        layout.addWidget(self.label, 0, 0)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.logger = QPlainTextEditLogger(self)
+        self.logger.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logging.getLogger().addHandler(self.logger)
+        logging.getLogger().setLevel(logging.DEBUG)
+
+        self.total_counter = CounterLabel("Total", self)
+        self.success_counter = CounterLabel("Successes:", self)
+        self.timeout_counter = CounterLabel("Timeouts:", self)
+        self.error_counter = CounterLabel("Errors:", self)
+    
+        end_button = QPushButton("End", self)
+        end_button.clicked.connect(self.end)
+
+
+        layout.addWidget(self.label, 0, 3)
+        layout.addWidget(self.total_counter, 1, 0)
+        layout.addWidget(self.success_counter, 1, 2)
+        layout.addWidget(self.timeout_counter, 1, 4)
+        layout.addWidget(self.error_counter, 1, 6)
+        layout.addWidget(self.logger.widget, 2, 0, 1, 7)
+        layout.addWidget(end_button, 3, 2, 1, 3)
+    
+    def end(self):
+        pass
+
+    # To remember the lvls
+    # def test(self):
+    #     logging.debug('damn, a bug')
+    #     logging.info('something to remember')
+    #     logging.warning('that\'s not right')
+    #     logging.error('foobar')
 
 
 class MainWindow(QMainWindow):
@@ -149,11 +206,12 @@ class MainWindow(QMainWindow):
         self.show()
 
     def setup_ui(self):
-        self.setWindowTitle("JK - Queuer")
+        self.setWindowTitle("JK Queuer - Setup")
 
         self.setGeometry(100, 100, 500, 100)
 
         self.setup_widget = SetupWidget(self)
+        
         
         
         self.setCentralWidget(self.setup_widget)
@@ -161,9 +219,14 @@ class MainWindow(QMainWindow):
     def start(self):
         self.working_widget = WorkingWidget(self)
         self.setCentralWidget(self.working_widget)
+        self.setWindowTitle("JK Queuer - Working")
+
+        self.worker = Worker()
+        self.thread = QThread()
+        self.worker.moveToThread(self.thread)
 
 
-    
+        
 
 class TagInputDialog(QDialog):
     def __init__(self, anchors_list, *args, **kwargs):
