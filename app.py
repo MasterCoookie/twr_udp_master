@@ -207,12 +207,9 @@ class MainWindow(QMainWindow):
 
     def setup_ui(self):
         self.setWindowTitle("JK Queuer - Setup")
-
         self.setGeometry(100, 100, 500, 100)
 
         self.setup_widget = SetupWidget(self)
-        
-        
         
         self.setCentralWidget(self.setup_widget)
     
@@ -220,6 +217,8 @@ class MainWindow(QMainWindow):
         self.working_widget = WorkingWidget(self)
         self.setCentralWidget(self.working_widget)
         self.setWindowTitle("JK Queuer - Working")
+
+        print(self.setup_widget.tags_dict)
 
         self.worker = Worker()
         self.thread = QThread()
@@ -262,7 +261,7 @@ class TagInputDialog(QDialog):
         super().reject()
 
     def get_inputs(self):
-        return (self.uwb_address_input.text(), self.ip_input.text(), self.port_input.text(), [item.text() for item in self.list_widget.selectedItems()])
+        return (self.uwb_address_input.text(), self.ip_input.text(), int(self.port_input.text()), [item.text() for item in self.list_widget.selectedItems()])
 
 
 if __name__ == "__main__":
