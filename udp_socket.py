@@ -45,6 +45,10 @@ class UDPSocket:
             if verbose:
                 print("Socket timeout")
             return None, None
+        except socket.error as error:
+            if verbose:
+                print(f"Socket error: {error}")
+            return None, None
 
     #TODO - rename
     def sending_process(self, ended, msg_queue, received_queue, verbose=False):
