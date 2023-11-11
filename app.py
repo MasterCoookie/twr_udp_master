@@ -26,19 +26,24 @@ class Worker(QObject):
 
         self.queuer.tags_dict = self.queuer.generate_dict(tags_list)
 
-        p1 = Process(target=self.queuer.queing_process, args=(ended, self.msg_q))
-        p2 = Process(target=self.udp_socket.sending_process, args=(ended, self.msg_q, self.result_q))
+        # p1 = Process(target=self.queuer.queing_process, args=(ended, self.msg_q))
+        # p2 = Process(target=self.udp_socket.sending_process, args=(ended, self.msg_q, self.result_q))
 
-        p1.start()
+        # p1.start()
         # time to prepare first queue
         time.sleep(.1)
-        p2.start()
+        # p2.start()
 
-        while not ended.is_set():
-            pass
+        # while not ended.is_set():
+        #     print("dupa")
+        #     time.sleep(.1)
 
-        p1.join()
-        p2.join()
+        for _ in range(10):
+            time.sleep(1)
+            print("Dupa")
+
+        # p1.join()
+        # p2.join()
 
         self.udp_socket.bound_socket.close()
 
@@ -210,7 +215,20 @@ class MainWindow(QMainWindow):
         super().__init__(*args, **kwargs)
 
         self.setup_ui()
+        
+
+        self.worker = Worker()
+        self.worker_thread = QThread()
+        self.worker.moveToThread(self.worker_thread)
+
+        self.worker_thread.started.connect(lambda: self.worker.do_work(self.setup_widget.tags_dict))
+        self.worker.finished.connect(self.worker_thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+
+        self.worker_thread.finished.connect(self.worker_thread.deleteLater)
+
         self.show()
+        
 
     def setup_ui(self):
         self.setWindowTitle("JK Queuer - Setup")
@@ -227,17 +245,7 @@ class MainWindow(QMainWindow):
 
         print(self.setup_widget.tags_dict)
 
-        self.worker = Worker()
-        self.thread = QThread()
-        self.worker.moveToThread(self.thread)
-
-        self.thread.started.connect(lambda: self.worker.do_work(self.setup_widget.tags_dict))
-        self.worker.finished.connect(self.thread.quit)
-        self.worker.finished.connect(self.worker.deleteLater)
-
-        self.thread.finished.connect(self.thread.deleteLater)
-
-        self.thread.start()
+        self.worker_thread.start()
 
 
         
@@ -251,6 +259,11 @@ class TagInputDialog(QDialog):
         self.uwb_address_input = QLineEdit(self)
         self.ip_input = QLineEdit(self)
         self.port_input = QLineEdit(self)
+
+        #set default value for inputs
+        self.uwb_address_input.setText("AA")
+        self.ip_input.setText("127.0.0.1")
+        self.port_input.setText("5001")
 
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
 
