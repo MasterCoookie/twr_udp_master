@@ -154,22 +154,19 @@ class WorkingWidget(QWidget):
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.logger = QPlainTextEditLogger(self)
+        self.logger.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
         logging.getLogger().addHandler(self.logger)
         logging.getLogger().setLevel(logging.DEBUG)
 
-        self.testbutton = QPushButton("Test", self)
-        self.testbutton.clicked.connect(self.test)
-
-
         layout.addWidget(self.label, 0, 1)
         layout.addWidget(self.logger.widget, 1, 0, 1, 3)
-        layout.addWidget(self.testbutton, 2, 1)
 
-    def test(self):
-        logging.debug('damn, a bug')
-        logging.info('something to remember')
-        logging.warning('that\'s not right')
-        logging.error('foobar')
+    # To remember the lvls
+    # def test(self):
+    #     logging.debug('damn, a bug')
+    #     logging.info('something to remember')
+    #     logging.warning('that\'s not right')
+    #     logging.error('foobar')
 
 
 class MainWindow(QMainWindow):
