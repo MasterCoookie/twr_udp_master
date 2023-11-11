@@ -5,7 +5,6 @@ import logging
 from queuer import Queuer
 from udp_socket import UDPSocket
 from random_startegy import RandomStrategy
-from base_logger import logger, QPlainTextEditLogger
 
 from multiprocessing import Queue, Process, Event
 
@@ -56,7 +55,7 @@ class Worker(QObject):
         p2.start()
 
         while not ended.is_set():
-            logger.warning('DUPA')
+            logging.warning('DUPA')
             time.sleep(.1)
 
         # for _ in range(10):
@@ -187,9 +186,9 @@ class WorkingWidget(QWidget):
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.logger = QPlainTextEditLogger(self)
-        self.logger.setFormatter(logger.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-        logger.getLogger().addHandler(self.logger)
-        logger.getLogger().setLevel(logger.DEBUG)
+        self.logger.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logging.getLogger().addHandler(self.logger)
+        logging.getLogger().setLevel(logging.DEBUG)
 
         self.total_counter = CounterLabel("Total", self)
         self.success_counter = CounterLabel("Successes:", self)
