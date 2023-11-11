@@ -93,7 +93,7 @@ class TestQueuer(unittest.TestCase):
 
     def test_generate_dict(self):
         tags = {
-            'AA': ('127.0.0.1', 5001, ['BB',  'CC']),
+            'AA': ('127.0.0.1', 5001, ['BB', 'CC']),
             'DD': ('127.0.0.2', 5002, ['EE', 'FF', 'GG'])
         }
         queuer = Queuer(None, RandomStrategy())
