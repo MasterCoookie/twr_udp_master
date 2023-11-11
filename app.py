@@ -1,5 +1,6 @@
 import sys
 import time
+import logging
 
 from queuer import Queuer
 from udp_socket import UDPSocket
@@ -13,6 +14,20 @@ from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot
 
 ended = Event()
 ended.clear()
+
+class QPlainTextEditLogger(logging.Handler):
+    def __init__(self, parent):
+        super(QPlainTextEditLogger, self).__init__()
+        self.widget = QPlainTextEdit(parent)
+        self.widget.setReadOnly(True)
+
+    def emit(self, record):
+        msg = self.format(record)
+        self.widget.appendPlainText(msg)
+    
+    def write(self, m):
+        pass
+
 
 class Worker(QObject):
     def __init__(self, tags_dict, *args, **kwargs):
@@ -41,7 +56,7 @@ class Worker(QObject):
         p2.start()
 
         while not ended.is_set():
-            # logger.warning('DUPA')
+            logger.warning('DUPA')
             time.sleep(.1)
 
         # for _ in range(10):
