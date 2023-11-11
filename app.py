@@ -139,6 +139,18 @@ class QPlainTextEditLogger(logging.Handler):
     def write(self, m):
         pass
 
+class CounterLabel(QLabel):
+    def __init__(self, label_text, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.counter = 0
+        self.label_text = label_text
+        self.setText(f"{self.label_text} {self.counter}")
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+    def increment(self):
+        self.counter += 1
+        self.setText(f"{self.label_text} {self.counter}")
 
 class WorkingWidget(QWidget):
     def __init__(self, *args, **kwargs):
@@ -158,8 +170,17 @@ class WorkingWidget(QWidget):
         logging.getLogger().addHandler(self.logger)
         logging.getLogger().setLevel(logging.DEBUG)
 
-        layout.addWidget(self.label, 0, 1)
-        layout.addWidget(self.logger.widget, 1, 0, 1, 3)
+        self.total_counter = CounterLabel("Total", self)
+        self.success_counter = CounterLabel("Successes:", self)
+        self.timeout_counter = CounterLabel("Timeouts:", self)
+        self.error_counter = CounterLabel("Errors:", self)
+
+        layout.addWidget(self.label, 0, 3)
+        layout.addWidget(self.total_counter, 1, 0)
+        layout.addWidget(self.success_counter, 1, 2)
+        layout.addWidget(self.timeout_counter, 1, 4)
+        layout.addWidget(self.error_counter, 1, 6)
+        layout.addWidget(self.logger.widget, 2, 0, 1, 7)
 
     # To remember the lvls
     # def test(self):
