@@ -8,8 +8,8 @@ from random_startegy import RandomStrategy
 
 from multiprocessing import Queue, Process, Event
 
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit
-from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot, Qt
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit, QFileDialog, QCheckBox
+from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot, Qt, QSettings
 
 ended = Event()
 ended.clear()
@@ -46,10 +46,11 @@ class Worker(QObject):
     error_signal = Signal()
     total_signal = Signal()
 
-    def do_work(self, ):
+    def do_work(self):
         # tags_list = {'AA': ('127.0.0.1', 5001, ['BB'])}
+        settings = QSettings("JK", "Queuer")
         self.queuer = Queuer(self.tags_dict, RandomStrategy())
-        self.udp_socket = UDPSocket(5000, 2, post_send_delay=1)
+        self.udp_socket = UDPSocket(int(settings.value("out_port", "5000")), len(self.tags_dict), post_send_delay=int(settings.value("delay", "100"))/1000)
 
         self.queuer.tags_dict = self.queuer.generate_dict(self.tags_dict)
 
@@ -84,6 +85,58 @@ class Worker(QObject):
         self.udp_socket.bound_socket.close()
         self.finished.emit()
 
+class SettingsDialog(QDialog):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.setWindowTitle("Settings")
+
+        layout = QFormLayout(self)
+
+        self.settings = QSettings("JK", "Queuer")
+
+        self.out_port_input = QLineEdit(self)
+        self.out_port_input.setText(self.settings.value("out_port", "5000"))
+
+        self.delay_input = QLineEdit(self)
+        self.delay_input.setText(self.settings.value("delay", "100"))
+
+        self.enable_log_save_label = QLabel("Log directory", self)
+
+        self.log_save_dir_input = QLineEdit(self)
+        self.log_save_dir_input.setText(self.settings.value("log_dir", "./"))
+
+        self.log_dir_button = QPushButton("Choose directory", self)
+        self.log_dir_button.clicked.connect(self.choose_log_dir)
+
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
+
+        layout.addRow("Out Port:", self.out_port_input)
+        layout.addRow("Delay (ms):", self.delay_input)
+        layout.addRow(self.enable_log_save_label)
+        layout.addRow(self.log_save_dir_input, self.log_dir_button)
+        layout.addWidget(button_box)
+
+
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+
+    def accept(self):
+        self.settings.setValue("out_port", self.out_port_input.text())
+        self.settings.setValue("delay", self.delay_input.text())
+        self.settings.setValue("log_dir", self.log_save_dir_input.text())
+        super().accept()
+
+    def choose_log_dir(self):
+        self.log_dir_input = QFileDialog.getExistingDirectory(self, "Choose directory", self.settings.value("log_dir", ""))
+        self.settings.setValue("log_dir", self.log_dir_input)
+        self.log_save_dir_input.setText(self.log_dir_input)
+
+    def reject(self):
+        super().reject()
+
+
+
 
 class SetupWidget(QWidget):
     def __init__(self, *args, **kwargs):
@@ -113,6 +166,9 @@ class SetupWidget(QWidget):
         clear_devices_button = QPushButton("Clear devices", self)
         clear_devices_button.clicked.connect(self.clear_devices)
 
+        settings_button = QPushButton("Settings", self)
+        settings_button.clicked.connect(self.settings)
+
         start_button = QPushButton("Start", self)
         start_button.clicked.connect(self.parent().start)
 
@@ -129,7 +185,8 @@ class SetupWidget(QWidget):
         layout.addWidget(add_anchor_button, 1, 3)
         layout.addWidget(remove_device_button, 2, 3)
         layout.addWidget(clear_devices_button, 3, 3)
-        layout.addWidget(start_button, 4, 0, 4, 2)
+        layout.addWidget(settings_button, 4, 0, 1, 1)
+        layout.addWidget(start_button, 4, 1, 1, 1)
         layout.addWidget(test_button, 4, 3, 4, 1)
         layout.addWidget(self.result_label, 4, 2, 4, 1)
     
@@ -137,6 +194,11 @@ class SetupWidget(QWidget):
         icon = self.style().standardIcon(pix)
         self.result_label.setPixmap(icon.pixmap(QSize(16, 16)))
         self.result_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+
+    def settings(self):
+        settings_dialog = SettingsDialog(self)
+        if settings_dialog.exec():
+            pass
 
     def add_tag(self):
         tag_input_dialog = TagInputDialog(self.anchors_list, self)
