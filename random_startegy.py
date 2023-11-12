@@ -14,5 +14,8 @@ class RandomStrategy(QueuingStrategy):
             time.sleep(.005)
 
     def decode_message(self, message_encoded, tags_dict):
+        msg = message_encoded[1]
+        if msg is None:
+            return (message_encoded[0], None)
         message_decoded = message_encoded[1].decode('utf-8')
         return (message_encoded[0], message_decoded)
