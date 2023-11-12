@@ -8,7 +8,7 @@ from random_startegy import RandomStrategy
 
 from multiprocessing import Queue, Process, Event
 
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit, QFileDialog
 from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot, Qt, QSettings
 
 ended = Event()
@@ -90,10 +90,35 @@ class SettingsDialog(QDialog):
 
         self.setWindowTitle("Settings")
 
+        layout = QFormLayout(self)
+
         self.settings = QSettings("JK", "Queuer")
 
-        self.ip_input = QLineEdit(self)
-        self.port_input = QLineEdit(self)
+        self.out_port_input = QLineEdit(self)
+        self.out_port_input.setText(self.settings.value("out_port", "5000"))
+
+        self.delay_input = QLineEdit(self)
+        self.delay_input.setText(self.settings.value("delay", "100"))
+
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
+
+        layout.addRow("Out Port:", self.out_port_input)
+        layout.addRow("Delay (ms):", self.delay_input)
+        layout.addWidget(button_box)
+
+
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+
+    def accept(self):
+        self.settings.setValue("out_port", self.out_port_input.text())
+        self.settings.setValue("delay", self.delay_input.text())
+        super().accept()
+
+    def reject(self):
+        super().reject()
+
+
 
 
 class SetupWidget(QWidget):
