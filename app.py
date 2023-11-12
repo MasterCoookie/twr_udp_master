@@ -203,7 +203,7 @@ class WorkingWidget(QWidget):
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.logger = QPlainTextEditLogger(self)
-        self.logger.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        self.logger.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
         logging.getLogger().addHandler(self.logger)
         logging.getLogger().setLevel(logging.DEBUG)
 
