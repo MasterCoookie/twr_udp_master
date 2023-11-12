@@ -8,7 +8,7 @@ from random_startegy import RandomStrategy
 
 from multiprocessing import Queue, Process, Event
 
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit, QFileDialog
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit, QFileDialog, QCheckBox
 from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot, Qt, QSettings
 
 ended = Event()
@@ -100,10 +100,20 @@ class SettingsDialog(QDialog):
         self.delay_input = QLineEdit(self)
         self.delay_input.setText(self.settings.value("delay", "100"))
 
+        self.enable_log_save_label = QLabel("Log directory", self)
+
+        self.log_save_dir_input = QLineEdit(self)
+        self.log_save_dir_input.setText(self.settings.value("log_dir", "./"))
+
+        self.log_dir_button = QPushButton("Choose directory", self)
+        self.log_dir_button.clicked.connect(self.choose_log_dir)
+
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
 
         layout.addRow("Out Port:", self.out_port_input)
         layout.addRow("Delay (ms):", self.delay_input)
+        layout.addRow(self.enable_log_save_label)
+        layout.addRow(self.log_save_dir_input, self.log_dir_button)
         layout.addWidget(button_box)
 
 
@@ -113,7 +123,14 @@ class SettingsDialog(QDialog):
     def accept(self):
         self.settings.setValue("out_port", self.out_port_input.text())
         self.settings.setValue("delay", self.delay_input.text())
+        self.settings.setValue("enable_log_save", self.enable_log_save.isChecked())
+        self.settings.setValue("log_dir", self.log_dir_input)
         super().accept()
+
+    def choose_log_dir(self):
+        self.log_dir_input = QFileDialog.getExistingDirectory(self, "Choose directory", self.settings.value("log_dir", ""))
+        self.settings.setValue("log_dir", self.log_dir_input)
+        self.log_save_dir_input.setText(self.log_dir_input)
 
     def reject(self):
         super().reject()
