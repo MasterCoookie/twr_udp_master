@@ -41,6 +41,11 @@ class Worker(QObject):
     finished = Signal()
     result = Signal(str)
 
+    success_signal = Signal()
+    timeout_signal = Signal()
+    error_signal = Signal()
+    total_signal = Signal()
+
     def do_work(self, ):
         # tags_list = {'AA': ('127.0.0.1', 5001, ['BB'])}
         self.queuer = Queuer(self.tags_dict, RandomStrategy())
@@ -58,14 +63,20 @@ class Worker(QObject):
 
         while not ended.is_set():
             # logging.warning('DUPA')
-            time.sleep(.1)
+            time.sleep(.01)
             self.queuer.results_decode(self.result_q, self.decoded_q)
             while not self.decoded_q.empty():
                 result = self.decoded_q.get()
+                self.total_signal.emit()
                 if result[1] is None:
                     self.result.emit(f"Timeout: {result[0]}")
+                    self.timeout_signal.emit()
+                elif result[1].startswith("ERR"):
+                    self.result.emit(f"Error - {result[0]}: {result[1].strip()}")
+                    self.error_signal.emit()
                 else:
                     self.result.emit(f"Success - {result[0]}: {result[1].strip()}")
+                    self.success_signal.emit()
 
         p1.join()
         p2.join()
@@ -260,6 +271,11 @@ class MainWindow(QMainWindow):
         self.worker_thread.finished.connect(self.worker_thread.deleteLater)
 
         self.worker.result.connect(self.update_result)
+
+        self.worker.success_signal.connect(self.working_widget.success_counter.increment)
+        self.worker.timeout_signal.connect(self.working_widget.timeout_counter.increment)
+        self.worker.error_signal.connect(self.working_widget.error_counter.increment)
+        self.worker.total_signal.connect(self.working_widget.total_counter.increment)
 
         self.worker_thread.start()
 
