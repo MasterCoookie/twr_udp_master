@@ -18,6 +18,15 @@ def uwb_mock(num, ended, verbose=False):
             if verbose:
                 print(f"Mock nr {num} has received message: {message_received.decode()} from {address}")
 
+            random_result  = randint(0, 10)
+
+            if random_result == 0:
+                receiver_socket.sendto(b'ERR', address)
+                continue
+                
+            if random_result < 3:
+                continue
+
             rand_distance_1 = randint(0, 100)
             rand_distance_2 = randint(0, 100)
             rand_distance_full = str(rand_distance_1) + "." + str(rand_distance_2) + "m\n"

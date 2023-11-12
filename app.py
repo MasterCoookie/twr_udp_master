@@ -39,7 +39,12 @@ class Worker(QObject):
     decoded_q = Queue()
 
     finished = Signal()
-    progress = Signal(str)
+    result = Signal(str)
+
+    success_signal = Signal()
+    timeout_signal = Signal()
+    error_signal = Signal()
+    total_signal = Signal()
 
     def do_work(self, ):
         # tags_list = {'AA': ('127.0.0.1', 5001, ['BB'])}
@@ -58,20 +63,20 @@ class Worker(QObject):
 
         while not ended.is_set():
             # logging.warning('DUPA')
-            time.sleep(.1)
+            time.sleep(.01)
             self.queuer.results_decode(self.result_q, self.decoded_q)
             while not self.decoded_q.empty():
                 result = self.decoded_q.get()
+                self.total_signal.emit()
                 if result[1] is None:
-                    self.progress.emit(f"Timeout: {result[0]}")
-                    # logging.warning(f"Timeout: {result[0]}")
+                    self.result.emit(f"Timeout: {result[0]}")
+                    self.timeout_signal.emit()
+                elif result[1].startswith("ERR"):
+                    self.result.emit(f"Error - {result[0]}: {result[1].strip()}")
+                    self.error_signal.emit()
                 else:
-                    # logging.warning(f"Success - {result[0]} : {result[1]}")
-                    self.progress.emit(f"Success - {result[0]}: {result[1].strip()}")
-
-        # for _ in range(10):
-        #     time.sleep(1)
-        #     print("Dupa")
+                    self.result.emit(f"Success - {result[0]}: {result[1].strip()}")
+                    self.success_signal.emit()
 
         p1.join()
         p2.join()
@@ -198,7 +203,7 @@ class WorkingWidget(QWidget):
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.logger = QPlainTextEditLogger(self)
-        self.logger.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        self.logger.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
         logging.getLogger().addHandler(self.logger)
         logging.getLogger().setLevel(logging.DEBUG)
 
@@ -265,7 +270,12 @@ class MainWindow(QMainWindow):
 
         self.worker_thread.finished.connect(self.worker_thread.deleteLater)
 
-        self.worker.progress.connect(self.update_result)
+        self.worker.result.connect(self.update_result)
+
+        self.worker.success_signal.connect(self.working_widget.success_counter.increment)
+        self.worker.timeout_signal.connect(self.working_widget.timeout_counter.increment)
+        self.worker.error_signal.connect(self.working_widget.error_counter.increment)
+        self.worker.total_signal.connect(self.working_widget.total_counter.increment)
 
         self.worker_thread.start()
 
