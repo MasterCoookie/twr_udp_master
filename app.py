@@ -46,10 +46,11 @@ class Worker(QObject):
     error_signal = Signal()
     total_signal = Signal()
 
-    def do_work(self, ):
+    def do_work(self):
         # tags_list = {'AA': ('127.0.0.1', 5001, ['BB'])}
+        settings = QSettings("JK", "Queuer")
         self.queuer = Queuer(self.tags_dict, RandomStrategy())
-        self.udp_socket = UDPSocket(5000, 2, post_send_delay=1)
+        self.udp_socket = UDPSocket(int(settings.value("out_port", "5000")), len(self.tags_dict), post_send_delay=int(settings.value("delay", "100"))/1000)
 
         self.queuer.tags_dict = self.queuer.generate_dict(self.tags_dict)
 
@@ -123,8 +124,7 @@ class SettingsDialog(QDialog):
     def accept(self):
         self.settings.setValue("out_port", self.out_port_input.text())
         self.settings.setValue("delay", self.delay_input.text())
-        self.settings.setValue("enable_log_save", self.enable_log_save.isChecked())
-        self.settings.setValue("log_dir", self.log_dir_input)
+        self.settings.setValue("log_dir", self.log_save_dir_input.text())
         super().accept()
 
     def choose_log_dir(self):
