@@ -9,7 +9,7 @@ from random_startegy import RandomStrategy
 from multiprocessing import Queue, Process, Event
 
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit
-from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot, Qt
+from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot, Qt, QSettings
 
 ended = Event()
 ended.clear()
@@ -84,6 +84,17 @@ class Worker(QObject):
         self.udp_socket.bound_socket.close()
         self.finished.emit()
 
+class SettingsDialog(QDialog):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.setWindowTitle("Settings")
+
+        self.settings = QSettings("JK", "Queuer")
+
+        self.ip_input = QLineEdit(self)
+        self.port_input = QLineEdit(self)
+
 
 class SetupWidget(QWidget):
     def __init__(self, *args, **kwargs):
@@ -113,6 +124,9 @@ class SetupWidget(QWidget):
         clear_devices_button = QPushButton("Clear devices", self)
         clear_devices_button.clicked.connect(self.clear_devices)
 
+        settings_button = QPushButton("Settings", self)
+        settings_button.clicked.connect(self.settings)
+
         start_button = QPushButton("Start", self)
         start_button.clicked.connect(self.parent().start)
 
@@ -129,7 +143,8 @@ class SetupWidget(QWidget):
         layout.addWidget(add_anchor_button, 1, 3)
         layout.addWidget(remove_device_button, 2, 3)
         layout.addWidget(clear_devices_button, 3, 3)
-        layout.addWidget(start_button, 4, 0, 4, 2)
+        layout.addWidget(settings_button, 4, 0, 1, 1)
+        layout.addWidget(start_button, 4, 1, 1, 1)
         layout.addWidget(test_button, 4, 3, 4, 1)
         layout.addWidget(self.result_label, 4, 2, 4, 1)
     
@@ -137,6 +152,11 @@ class SetupWidget(QWidget):
         icon = self.style().standardIcon(pix)
         self.result_label.setPixmap(icon.pixmap(QSize(16, 16)))
         self.result_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+
+    def settings(self):
+        settings_dialog = SettingsDialog(self)
+        if settings_dialog.exec():
+            pass
 
     def add_tag(self):
         tag_input_dialog = TagInputDialog(self.anchors_list, self)
