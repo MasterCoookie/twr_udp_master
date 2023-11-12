@@ -23,3 +23,10 @@ class CompleteRandomStrategy(QueuingStrategy):
                     tag, anchor = tags_queues[i].pop(0)
                     self.prepared_queue.put((anchor.uwb_address.encode(), tag.ip, tag.device_port))
                 i += 1
+
+    def decode_message(self, message_encoded, tags_dict):
+        msg = message_encoded[1]
+        if msg is None:
+            return (message_encoded[0], None)
+        message_decoded = message_encoded[1].decode('utf-8')
+        return (message_encoded[0], message_decoded)

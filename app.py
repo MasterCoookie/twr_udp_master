@@ -36,8 +36,10 @@ class Worker(QObject):
 
     msg_q = Queue()
     result_q = Queue()
+    decoded_q = Queue()
 
     finished = Signal()
+    progress = Signal(str)
 
     def do_work(self, ):
         # tags_list = {'AA': ('127.0.0.1', 5001, ['BB'])}
@@ -55,8 +57,17 @@ class Worker(QObject):
         p2.start()
 
         while not ended.is_set():
-            logging.warning('DUPA')
+            # logging.warning('DUPA')
             time.sleep(.1)
+            self.queuer.results_decode(self.result_q, self.decoded_q)
+            while not self.decoded_q.empty():
+                result = self.decoded_q.get()
+                if result[1] is None:
+                    self.progress.emit(f"Timeout: {result[0]}")
+                    # logging.warning(f"Timeout: {result[0]}")
+                else:
+                    # logging.warning(f"Success - {result[0]} : {result[1]}")
+                    self.progress.emit(f"Success - {result[0]}: {result[1].strip()}")
 
         # for _ in range(10):
         #     time.sleep(1)
@@ -67,6 +78,7 @@ class Worker(QObject):
 
         self.udp_socket.bound_socket.close()
         self.finished.emit()
+
 
 class SetupWidget(QWidget):
     def __init__(self, *args, **kwargs):
@@ -253,10 +265,13 @@ class MainWindow(QMainWindow):
 
         self.worker_thread.finished.connect(self.worker_thread.deleteLater)
 
+        self.worker.progress.connect(self.update_result)
+
         self.worker_thread.start()
 
 
-        
+    def update_result(self, result):
+        logging.warning(result)
 
 class TagInputDialog(QDialog):
     def __init__(self, anchors_list, *args, **kwargs):

@@ -119,6 +119,26 @@ class TestQueuer(unittest.TestCase):
         self.assertEqual(generated['DD'].available_devices[0].uwb_address, 'EE')
         self.assertEqual(generated['DD'].available_devices[1].uwb_address, 'FF')
 
+    def test_results_decode(self):
+        results_q = Queue()
+        for i in range(2):
+            results_q.put(('127.0.0.1', f'Hello World{i}'.encode('utf-8'), ('127.0.0.1', 5001)))
+        
+        decoded_q = Queue()
+        self.queuer.results_decode(results_q, decoded_q)
+
+        self.assertEqual(decoded_q.qsize(), 2)
+
+        i = 0
+        while not decoded_q.empty():
+            q_element = decoded_q.get()
+            self.assertIsInstance(q_element, tuple)
+            self.assertEqual(len(q_element), 2)
+            self.assertEqual(q_element[0], '127.0.0.1')
+            self.assertEqual(q_element[1], f'Hello World{i}')
+            i += 1
+
+
 
 if __name__ == "__main__":
     unittest.main()
