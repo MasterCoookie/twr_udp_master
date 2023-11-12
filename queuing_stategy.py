@@ -6,9 +6,9 @@ class QueuingStrategy(ABC):
         self.prepared_queue = Queue()
     
     @abstractmethod
-    def prepare_queue(self, tags_list):
+    def prepare_queue(self, tags_dict):
         pass
 
     @abstractmethod
-    def results_decode(self, message_encoded):
+    def decode_message(self, message_encoded, tags_dict):
         pass

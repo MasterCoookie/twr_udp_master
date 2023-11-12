@@ -37,7 +37,10 @@ class Queuer:
             self.fill_queue(message_queue)
 
     def results_decode(self, encoded_queue, decoded_queue):
-        pass
+        while not encoded_queue.empty():
+            message_decoded = self.queuing_strategy.decode_message(encoded_queue.get(), self.tags_dict)
+
+            decoded_queue.put((message_decoded[0], message_decoded[1]))
 
     def generate_dict(self, ui_passed_dict):
         generated_dict = {}
