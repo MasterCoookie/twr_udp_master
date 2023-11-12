@@ -39,7 +39,7 @@ class Worker(QObject):
     decoded_q = Queue()
 
     finished = Signal()
-    progress = Signal(str)
+    result = Signal(str)
 
     def do_work(self, ):
         # tags_list = {'AA': ('127.0.0.1', 5001, ['BB'])}
@@ -63,15 +63,9 @@ class Worker(QObject):
             while not self.decoded_q.empty():
                 result = self.decoded_q.get()
                 if result[1] is None:
-                    self.progress.emit(f"Timeout: {result[0]}")
-                    # logging.warning(f"Timeout: {result[0]}")
+                    self.result.emit(f"Timeout: {result[0]}")
                 else:
-                    # logging.warning(f"Success - {result[0]} : {result[1]}")
-                    self.progress.emit(f"Success - {result[0]}: {result[1].strip()}")
-
-        # for _ in range(10):
-        #     time.sleep(1)
-        #     print("Dupa")
+                    self.result.emit(f"Success - {result[0]}: {result[1].strip()}")
 
         p1.join()
         p2.join()
@@ -265,7 +259,7 @@ class MainWindow(QMainWindow):
 
         self.worker_thread.finished.connect(self.worker_thread.deleteLater)
 
-        self.worker.progress.connect(self.update_result)
+        self.worker.result.connect(self.update_result)
 
         self.worker_thread.start()
 
