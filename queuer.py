@@ -36,7 +36,7 @@ class Queuer:
             self.encode_queue()
             self.fill_queue(message_queue)
 
-    def results_decode(self, message_encoded):
+    def results_decode(self, encoded_queue, decoded_queue):
         pass
 
     def generate_dict(self, ui_passed_dict):

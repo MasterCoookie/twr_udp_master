@@ -12,3 +12,6 @@ class RandomStrategy(QueuingStrategy):
             anchor = choice(tag.available_devices)
             self.prepared_queue.put((anchor.uwb_address.encode(), tag.ip, tag.device_port))
             time.sleep(.005)
+
+    def results_decode(self, message_encoded):
+        pass

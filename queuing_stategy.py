@@ -8,3 +8,7 @@ class QueuingStrategy(ABC):
     @abstractmethod
     def prepare_queue(self, tags_list):
         pass
+
+    @abstractmethod
+    def results_decode(self, message_encoded):
+        pass
