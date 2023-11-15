@@ -49,6 +49,8 @@ class TestQueuerSocket(unittest.TestCase):
 
         self.udp_socket.bound_socket.close()
 
+        self.assertGreater(result_q.qsize(), 0)
+
         while not result_q.empty():
             sendto_ip, message_received, address = result_q.get()
             self.assertEqual(sendto_ip, '127.0.0.1')
