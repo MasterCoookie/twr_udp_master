@@ -153,7 +153,6 @@ class SetupWidget(QWidget):
         self.setLayout(layout)
 
         self.list_widget = QListWidget(self)
-        layout.addWidget(self.list_widget, 0, 0, 4, 3)
 
         add_tag_button = QPushButton("Add Tag", self)
         add_tag_button.clicked.connect(self.add_tag)
@@ -181,15 +180,16 @@ class SetupWidget(QWidget):
         pixmapi = getattr(QStyle.StandardPixmap, "SP_MediaPlay")
         self.set_icon(pixmapi)
 
-
-        layout.addWidget(add_tag_button, 0, 3)
-        layout.addWidget(add_anchor_button, 1, 3)
-        layout.addWidget(remove_device_button, 2, 3)
-        layout.addWidget(clear_devices_button, 3, 3)
-        layout.addWidget(settings_button, 4, 0, 1, 1)
-        layout.addWidget(start_button, 4, 1, 1, 1)
-        layout.addWidget(test_button, 4, 3, 4, 1)
-        layout.addWidget(self.result_label, 4, 2, 4, 1)
+        width = 4
+        layout.addWidget(self.list_widget, 0, 0, 4, width)
+        layout.addWidget(add_tag_button, 0, width)
+        layout.addWidget(add_anchor_button, 1, width)
+        layout.addWidget(remove_device_button, 2, width)
+        layout.addWidget(clear_devices_button, 3, width)
+        layout.addWidget(settings_button, 4, 0, 1, 2)
+        layout.addWidget(start_button, 4, 2, 1, 2)
+        layout.addWidget(test_button, 4, width)
+        # layout.addWidget(self.result_label, 4, 2, 4, 1)
     
     def set_icon(self, pix):
         icon = self.style().standardIcon(pix)
@@ -315,8 +315,7 @@ class MainWindow(QMainWindow):
 
     def setup_ui(self):
         self.setWindowTitle("JK Queuer - Setup")
-        self.setGeometry(100, 100, 500, 100)
-
+        self.setFixedSize(500, 175)
         self.setup_widget = SetupWidget(self)
         
         self.setCentralWidget(self.setup_widget)
