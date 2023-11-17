@@ -316,6 +316,8 @@ class MainWindow(QMainWindow):
         self.working_widget = WorkingWidget(self)
         self.setCentralWidget(self.working_widget)
         self.setWindowTitle("JK Queuer - Working")
+        self.setFixedSize(16777215,16777215)
+        self.setBaseSize(500, 300)
 
 
         print(self.setup_widget.tags_dict)
