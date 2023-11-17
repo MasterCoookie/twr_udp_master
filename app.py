@@ -301,11 +301,11 @@ class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.setup_ui()
-
         with open("styles.qss", "r") as f:
             self.setStyleSheet(f.read())
 
+        self.setup_ui()
+        
         self.show()
         
 
@@ -322,6 +322,7 @@ class MainWindow(QMainWindow):
         self.working_widget = WorkingWidget(self)
         self.setCentralWidget(self.working_widget)
         self.setWindowTitle("JK Queuer - Working")
+
 
         print(self.setup_widget.tags_dict)
 
@@ -391,6 +392,8 @@ class TagInputDialog(QDialog):
 
 
 if __name__ == "__main__":
+    sys.argv += ['-platform', 'windows:darkmode=2']
     app = QApplication(sys.argv)
+    app.setStyle("Fusion")
     window = MainWindow()
     sys.exit(app.exec())
