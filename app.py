@@ -172,13 +172,8 @@ class SetupWidget(QWidget):
         start_button = QPushButton("Start", self)
         start_button.clicked.connect(self.parent().start)
 
-        test_button = QPushButton("Test Tag", self)
-        test_button.clicked.connect(self.test_tag)
-
-        self.result_label = QLabel("Result", self)
-
-        pixmapi = getattr(QStyle.StandardPixmap, "SP_MediaPlay")
-        self.set_icon(pixmapi)
+        self.test_button = QPushButton("Test Tag", self)
+        self.test_button.clicked.connect(self.test_tag)
 
         width = 4
         layout.addWidget(self.list_widget, 0, 0, 4, width)
@@ -188,13 +183,7 @@ class SetupWidget(QWidget):
         layout.addWidget(clear_devices_button, 3, width)
         layout.addWidget(settings_button, 4, 0, 1, 2)
         layout.addWidget(start_button, 4, 2, 1, 2)
-        layout.addWidget(test_button, 4, width)
-        # layout.addWidget(self.result_label, 4, 2, 4, 1)
-    
-    def set_icon(self, pix):
-        icon = self.style().standardIcon(pix)
-        self.result_label.setPixmap(icon.pixmap(QSize(16, 16)))
-        self.result_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(self.test_button, 4, width)
 
     def settings(self):
         settings_dialog = SettingsDialog(self)
@@ -232,10 +221,12 @@ class SetupWidget(QWidget):
         result = test_socket.receive(verbose=True)
         if result[0] is None:
             pixmapi = getattr(QStyle.StandardPixmap, "SP_DialogCancelButton")
-            self.set_icon(pixmapi)
+            icon = self.style().standardIcon(pixmapi)
+            self.test_button.setIcon(icon)
         else:
             pixmapi = getattr(QStyle.StandardPixmap, "SP_DialogApplyButton")
-            self.set_icon(pixmapi)
+            icon = self.style().standardIcon(pixmapi)
+            self.test_button.setIcon(icon)
         test_socket.bound_socket.close()
 
 
