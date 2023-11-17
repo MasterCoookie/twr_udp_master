@@ -303,6 +303,9 @@ class MainWindow(QMainWindow):
 
         self.setup_ui()
 
+        with open("styles.qss", "r") as f:
+            self.setStyleSheet(f.read())
+
         self.show()
         
 
