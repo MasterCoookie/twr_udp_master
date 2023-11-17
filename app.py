@@ -8,6 +8,7 @@ from random_startegy import RandomStrategy
 
 from multiprocessing import Queue, Process, Event
 
+from PyQt6 import QtGui
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit, QFileDialog, QCheckBox
 from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot, Qt, QSettings
 
@@ -303,6 +304,9 @@ class MainWindow(QMainWindow):
 
         with open("styles.qss", "r") as f:
             self.setStyleSheet(f.read())
+        
+        self.setWindowIcon(QtGui.QIcon('logo.png'))
+
 
         self.setup_ui()
         
