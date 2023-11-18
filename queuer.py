@@ -22,6 +22,7 @@ class Queuer:
                         break
                     else:
                         raise Exception("Queue is empty")
+            self.prepared_queue = Queue()
 
         return queue
 
@@ -29,7 +30,10 @@ class Queuer:
         while self.prepared_queue.qsize() < self.queue_upper_limit:
             self.queuing_strategy.prepare_queue(self.tags_dict)
             #TODO - potentially rework this
-            self.prepared_queue = self.queuing_strategy.prepared_queue
+            while not self.queuing_strategy.prepared_queue.empty():
+                self.prepared_queue.put(self.queuing_strategy.prepared_queue.get())
+                # print("Putting in prepared queue:", self)
+            # self.prepared_queue = self.queuing_strategy.prepared_queue
 
     def queing_process(self, ended, message_queue):
         while not ended.is_set():
@@ -49,6 +53,4 @@ class Queuer:
             tag = UWBTag(ip=value[0], uwb_address=key, device_port=value[1], available_devices=tag_available_devices)
             generated_dict[key] = tag
         
-        return generated_dict
-    
-    
+        return generated_dict    

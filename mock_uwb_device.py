@@ -15,8 +15,9 @@ def uwb_mock(num, ended, verbose=False):
     while not ended.is_set():
         try:
             message_received, address = receiver_socket.recvfrom(1024)
+            message_decoded = message_received.decode('utf-8')
             if verbose:
-                print(f"Mock nr {num} has received message: {message_received.decode()} from {address}")
+                print(f"Mock nr {num} has received message: {message_decoded} from {address}")
 
             random_result  = randint(0, 10)
 
@@ -33,7 +34,7 @@ def uwb_mock(num, ended, verbose=False):
 
             time.sleep(randint(0, 50) / 1000)
 
-            receiver_socket.sendto(f'DIST: {rand_distance_full}'.encode(), address)
+            receiver_socket.sendto(f'DIST {message_decoded}: {rand_distance_full}m'.encode(), address)
         except socket.timeout:
             if verbose:
                 print(f"Mock 127.0.0.{num}: Receiver socket timeout!")
