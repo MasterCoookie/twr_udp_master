@@ -8,6 +8,7 @@ from random_startegy import RandomStrategy
 
 from multiprocessing import Queue, Process, Event
 
+from PyQt6 import QtGui
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit, QFileDialog, QCheckBox
 from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot, Qt, QSettings
 
@@ -152,7 +153,6 @@ class SetupWidget(QWidget):
         self.setLayout(layout)
 
         self.list_widget = QListWidget(self)
-        layout.addWidget(self.list_widget, 0, 0, 4, 3)
 
         add_tag_button = QPushButton("Add Tag", self)
         add_tag_button.clicked.connect(self.add_tag)
@@ -172,28 +172,18 @@ class SetupWidget(QWidget):
         start_button = QPushButton("Start", self)
         start_button.clicked.connect(self.parent().start)
 
-        test_button = QPushButton("Test Tag", self)
-        test_button.clicked.connect(self.test_tag)
+        self.test_button = QPushButton("Test Tag", self)
+        self.test_button.clicked.connect(self.test_tag)
 
-        self.result_label = QLabel("Result", self)
-
-        pixmapi = getattr(QStyle.StandardPixmap, "SP_MediaPlay")
-        self.set_icon(pixmapi)
-
-
-        layout.addWidget(add_tag_button, 0, 3)
-        layout.addWidget(add_anchor_button, 1, 3)
-        layout.addWidget(remove_device_button, 2, 3)
-        layout.addWidget(clear_devices_button, 3, 3)
-        layout.addWidget(settings_button, 4, 0, 1, 1)
-        layout.addWidget(start_button, 4, 1, 1, 1)
-        layout.addWidget(test_button, 4, 3, 4, 1)
-        layout.addWidget(self.result_label, 4, 2, 4, 1)
-    
-    def set_icon(self, pix):
-        icon = self.style().standardIcon(pix)
-        self.result_label.setPixmap(icon.pixmap(QSize(16, 16)))
-        self.result_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        width = 4
+        layout.addWidget(self.list_widget, 0, 0, 4, width)
+        layout.addWidget(add_tag_button, 0, width)
+        layout.addWidget(add_anchor_button, 1, width)
+        layout.addWidget(remove_device_button, 2, width)
+        layout.addWidget(clear_devices_button, 3, width)
+        layout.addWidget(settings_button, 4, 0, 1, 2)
+        layout.addWidget(start_button, 4, 2, 1, 2)
+        layout.addWidget(self.test_button, 4, width)
 
     def settings(self):
         settings_dialog = SettingsDialog(self)
@@ -231,10 +221,12 @@ class SetupWidget(QWidget):
         result = test_socket.receive(verbose=True)
         if result[0] is None:
             pixmapi = getattr(QStyle.StandardPixmap, "SP_DialogCancelButton")
-            self.set_icon(pixmapi)
+            icon = self.style().standardIcon(pixmapi)
+            self.test_button.setIcon(icon)
         else:
             pixmapi = getattr(QStyle.StandardPixmap, "SP_DialogApplyButton")
-            self.set_icon(pixmapi)
+            icon = self.style().standardIcon(pixmapi)
+            self.test_button.setIcon(icon)
         test_socket.bound_socket.close()
 
 
@@ -301,15 +293,20 @@ class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.setup_ui()
+        with open("styles.qss", "r") as f:
+            self.setStyleSheet(f.read())
+        
+        self.setWindowIcon(QtGui.QIcon('logo.png'))
 
+
+        self.setup_ui()
+        
         self.show()
         
 
     def setup_ui(self):
         self.setWindowTitle("JK Queuer - Setup")
-        self.setGeometry(100, 100, 500, 100)
-
+        self.setFixedSize(500, 175)
         self.setup_widget = SetupWidget(self)
         
         self.setCentralWidget(self.setup_widget)
@@ -319,6 +316,9 @@ class MainWindow(QMainWindow):
         self.working_widget = WorkingWidget(self)
         self.setCentralWidget(self.working_widget)
         self.setWindowTitle("JK Queuer - Working")
+        self.setFixedSize(16777215,16777215)
+        self.setBaseSize(500, 300)
+
 
         print(self.setup_widget.tags_dict)
 
@@ -388,6 +388,8 @@ class TagInputDialog(QDialog):
 
 
 if __name__ == "__main__":
+    sys.argv += ['-platform', 'windows:darkmode=2']
     app = QApplication(sys.argv)
+    app.setStyle("Fusion")
     window = MainWindow()
     sys.exit(app.exec())
