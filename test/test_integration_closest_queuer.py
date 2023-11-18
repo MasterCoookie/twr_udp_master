@@ -32,6 +32,7 @@ class TestClosestStrategy(unittest.TestCase):
         queuer.fill_queue(self.prepared_queue)
 
         self.assertEqual(self.prepared_queue.qsize(), 8)
+        self.assertEqual(queuer.prepared_queue.qsize(), 0)
 
         fake_restults = [4.12, 5.91, 4.47, 8.6, 8.85]
         i = 0
@@ -59,17 +60,25 @@ class TestClosestStrategy(unittest.TestCase):
 
         self.assertEqual(tag.distances_available, 5)
         self.assertEqual(self.prepared_queue.qsize(), 0)
+        self.assertEqual(queuer.prepared_queue.qsize(), 0)
+
+        queuer.queue_upper_limit = 4
 
         queuer.encode_queue()
         queuer.fill_queue(self.prepared_queue)
 
-        self.assertEqual(self.prepared_queue.qsize(), 8)
+        self.assertEqual(self.prepared_queue.qsize(), 4)
 
         while not self.prepared_queue.empty():
             message_encoded, ip, target_port = self.prepared_queue.get()
             print(message_encoded, ip, target_port)
 
 
-            
+            self.assertNotEqual(message_encoded.decode('utf-8'), "EE")
 
-        
+    def tearDown(self) -> None:
+        print("Finished testing closest strategy integration")
+        return super().tearDown()
+            
+if __name__ == '__main__':
+    unittest.main()        

@@ -21,15 +21,20 @@ class ClosestStrategy(QueuingStrategy):
                 # print("trilateration_list ", trilateration_list)
                 tag_position = trilaterate_3d_4dists(trilateration_list)
 
-                # print("tag_position ", tag_position)
+                print("tag_position ", tag_position)
 
+                i = 0
+                while i < len(tag.available_devices):
+                    tag.available_devices[i].distance = np.linalg.norm(np.array(tag.available_devices[i].position[:3]) - tag_position)
+                    print(f"anchor {tag.available_devices[i].uwb_address} {tag.available_devices[i].distance}")
+                    i += 1
+
+                tag.available_devices.sort(key=lambda x: x.distance if x.distance is not None else 1000)
                 for anchor in tag.available_devices:
-                    anchor.distance = np.linalg.norm(np.array(anchor.position[:3]) - tag_position)
-                    # print(f"anchor {anchor.uwb_address} {anchor.distance}")
-
-                tag.available_devices.sort(key=lambda x: x.distance)
+                    print("Sorted:", anchor.uwb_address, anchor.distance)
 
                 for i in range(4):
+                    print("Putting:", tag.available_devices[i].uwb_address, tag.ip, tag.device_port)
                     self.prepared_queue.put((tag.available_devices[i].uwb_address.encode(), tag.ip, tag.device_port))
 
                 tag.distances_available = 0
@@ -53,6 +58,8 @@ class ClosestStrategy(QueuingStrategy):
                     if tag.distances_available < len(tag.available_devices):
                         tag.distances_available += 1
                     break
+            
+            tag.available_devices.sort(key=lambda x: x.distance if x.distance is not None else 1000)
 
 
         return (message_encoded[0], message_decoded)

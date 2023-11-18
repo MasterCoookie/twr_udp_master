@@ -26,7 +26,7 @@ class TestClosestStrategy(unittest.TestCase):
         self.anchor_3.distance = 4.47
         self.anchor_4.distance = 8.6
 
-        tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "DD", [self.anchor_1, self.anchor_2, self.anchor_3, self.anchor_4, self.anchor_5])}
+        tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "FF", [self.anchor_1, self.anchor_2, self.anchor_3, self.anchor_4, self.anchor_5])}
         tags_dict["192.168.0.112"].distances_available = 4
 
         queuer = Queuer(tags_dict, ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
@@ -88,8 +88,8 @@ class TestClosestStrategy(unittest.TestCase):
 
         self.assertEqual(decoded_q.qsize(), 4)
         self.assertAlmostEqual(tags.available_devices[0].distance, 4.12, delta=0.05)
-        self.assertAlmostEqual(tags.available_devices[1].distance, 5.91, delta=0.05)
-        self.assertAlmostEqual(tags.available_devices[2].distance, 4.47, delta=0.05)
+        self.assertAlmostEqual(tags.available_devices[1].distance, 4.47, delta=0.05)
+        self.assertAlmostEqual(tags.available_devices[2].distance, 5.91, delta=0.05)
         self.assertAlmostEqual(tags.available_devices[3].distance, 8.6, delta=0.05)
 
 if __name__ == "__main__":
