@@ -18,14 +18,14 @@ class ClosestStrategy(QueuingStrategy):
                     if anchor.distance is not None:
                         trilateration_list.append(anchor.position)
 
-                print("trilateration_list ", trilateration_list)
+                # print("trilateration_list ", trilateration_list)
                 tag_position = trilaterate_3d_4dists(trilateration_list)
 
-                print("tag_position ", tag_position)
+                # print("tag_position ", tag_position)
 
                 for anchor in tag.available_devices:
                     anchor.distance = np.linalg.norm(np.array(anchor.position[:3]) - tag_position)
-                    print(f"anchor {anchor.uwb_address} {anchor.distance}")
+                    # print(f"anchor {anchor.uwb_address} {anchor.distance}")
 
                 tag.available_devices.sort(key=lambda x: x.distance)
 

@@ -2,7 +2,6 @@ import unittest
 
 from multiprocessing import Queue
 
-from positioning_functions import *
 from closest_strategy import ClosestStrategy
 from uwb_tag import UWBTag
 from uwb_device import UWBDevice
