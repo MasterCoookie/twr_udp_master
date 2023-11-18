@@ -5,6 +5,7 @@ import logging
 from queuer import Queuer
 from udp_socket import UDPSocket
 from random_startegy import RandomStrategy
+from closest_strategy import ClosestStrategy
 
 from multiprocessing import Queue, Process, Event
 
@@ -50,7 +51,8 @@ class Worker(QObject):
     def do_work(self):
         # tags_list = {'AA': ('127.0.0.1', 5001, ['BB'])}
         settings = QSettings("JK", "Queuer")
-        self.queuer = Queuer(self.tags_dict, RandomStrategy())
+        # self.queuer = Queuer(self.tags_dict, RandomStrategy())
+        self.queuer = Queuer(self.tags_dict, ClosestStrategy())
         self.udp_socket = UDPSocket(int(settings.value("out_port", "5000")), len(self.tags_dict), post_send_delay=int(settings.value("delay", "100"))/1000)
 
         self.queuer.tags_dict = self.queuer.generate_dict(self.tags_dict)

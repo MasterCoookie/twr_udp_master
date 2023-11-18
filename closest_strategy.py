@@ -48,6 +48,9 @@ class ClosestStrategy(QueuingStrategy):
             return (message_encoded[0], None)
         message_decoded = message_encoded[1].decode('utf-8')
 
+        if message_decoded.startswith("ERR"):
+            return (message_encoded[0], message_decoded)
+
         uwb_addr = message_decoded.split(" ")[1].split(":")[0]
         distance = float(message_decoded.split(" ")[2].split("m")[0])
 
