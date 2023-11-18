@@ -33,6 +33,9 @@ class ClosestStrategy(QueuingStrategy):
                     self.prepared_queue.put((tag.available_devices[i].uwb_address.encode(), tag.ip, tag.device_port))
 
                 tag.distances_available = 0
+            else:
+                for anchor in tag.available_devices:
+                    self.prepared_queue.put((anchor.uwb_address.encode(), tag.ip, tag.device_port))
 
     def decode_message(self, message_encoded, tags_dict):
         msg = message_encoded[1]
