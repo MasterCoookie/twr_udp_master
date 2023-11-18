@@ -26,8 +26,11 @@ class ClosestStrategy(QueuingStrategy):
                 for anchor in tag.available_devices:
                     anchor.distance = np.linalg.norm(np.array(anchor.position[:3]) - tag_position)
                     print(f"anchor {anchor.uwb_address} {anchor.distance}")
-        
-        self.prepared_queue.put(("dupa", "dupa", "dupa"))
+
+                tag.available_devices.sort(key=lambda x: x.distance)
+
+                for i in range(4):
+                    self.prepared_queue.put((tag.available_devices[i].uwb_address.encode(), tag.ip, tag.device_port))
 
     def decode_message(self, message_encoded, tags_dict):
         pass
