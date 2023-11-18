@@ -60,10 +60,10 @@ class TestClosestStrategy(unittest.TestCase):
         result_q = Queue()
         decoded_q = Queue()
 
-        result_q.put(('192.168.0.112', 'DIST AA: 4.12m', ('192.168.0.112', 7)))
-        result_q.put(('192.168.0.112', 'DIST BB: 5.91m', ('192.168.0.112', 7)))
-        result_q.put(('192.168.0.112', 'DIST CC: 4.47m', ('192.168.0.112', 7)))
-        result_q.put(('192.168.0.112', 'DIST DD: 8.6m', ('192.168.0.112', 7)))
+        result_q.put(('192.168.0.112', b'DIST AA: 4.12m', ('192.168.0.112', 7)))
+        result_q.put(('192.168.0.112', b'DIST BB: 5.91m', ('192.168.0.112', 7)))
+        result_q.put(('192.168.0.112', b'DIST CC: 4.47m', ('192.168.0.112', 7)))
+        result_q.put(('192.168.0.112', b'DIST DD: 8.6m', ('192.168.0.112', 7)))
 
         queuer.results_decode(result_q, decoded_q)
 
@@ -73,7 +73,7 @@ class TestClosestStrategy(unittest.TestCase):
         self.assertAlmostEqual(tags.available_devices[0].distance, 4.12, delta=0.05)
         self.assertAlmostEqual(tags.available_devices[1].distance, 5.91, delta=0.05)
         self.assertAlmostEqual(tags.available_devices[2].distance, 4.47, delta=0.05)
-        self.assertAlmostEqual(tags.available_devices[2].distance, 8.6, delta=0.05)
+        self.assertAlmostEqual(tags.available_devices[3].distance, 8.6, delta=0.05)
 
 if __name__ == "__main__":
     unittest.main()

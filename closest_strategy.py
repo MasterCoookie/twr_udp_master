@@ -35,4 +35,20 @@ class ClosestStrategy(QueuingStrategy):
                 tag.distances_available = 0
 
     def decode_message(self, message_encoded, tags_dict):
-        pass
+        msg = message_encoded[1]
+        if msg is None:
+            return (message_encoded[0], None)
+        message_decoded = message_encoded[1].decode('utf-8')
+
+        uwb_addr = message_decoded.split(" ")[1].split(":")[0]
+        distance = float(message_decoded.split(" ")[2].split("m")[0])
+
+        for tag in tags_dict.values():
+            for anchor in tag.available_devices:
+                if anchor.uwb_address == uwb_addr:
+                    anchor.distance = distance
+                    tag.distances_available += 1
+                    break
+
+
+        return (message_encoded[0], message_decoded)
