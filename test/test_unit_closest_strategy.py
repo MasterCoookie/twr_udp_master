@@ -10,21 +10,26 @@ from queuer import Queuer
 
 class TestClosestStrategy(unittest.TestCase):
     def setUp(self) -> None:
-        anchor_1 = UWBDevice(None, None, "AA", 3, 4, 5)
-        anchor_2 = UWBDevice(None, None, "BB", 2, 2, 2)
-        anchor_3 = UWBDevice(None, None, "CC", 3, 3, 3)
-        anchor_4 = UWBDevice(None, None, "DD", 0, 0, 1)
-        anchor_5 = UWBDevice(None, None, "EE", 0, 0, .5)
-
-        tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "DD", [anchor_1, anchor_2, anchor_3, anchor_4, anchor_5])}
-
-        self.queuer = Queuer(tags_dict, ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
+        self.anchor_1 = UWBDevice(None, None, "AA", 3, 4, 5)
+        self.anchor_2 = UWBDevice(None, None, "BB", 2, 2, 2)
+        self.anchor_3 = UWBDevice(None, None, "CC", 3, 3, 3)
+        self.anchor_4 = UWBDevice(None, None, "DD", 0, 0, 1)
+        self.anchor_5 = UWBDevice(None, None, "EE", 0, 0, .5)        
     
     def test_closest_strategy_triatelation_available(self):
         q = Queue()
 
-        self.queuer.encode_queue()
-        self.queuer.fill_queue(q)
+        self.anchor_1.distance = 4.12
+        self.anchor_2.distance = 5.91
+        self.anchor_3.distance = 4.47
+        self.anchor_4.distance = 8.6
+
+        tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "DD", [self.anchor_1, self.anchor_2, self.anchor_3, self.anchor_4, self.anchor_5])}
+
+        queuer = Queuer(tags_dict, ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
+
+        queuer.encode_queue()
+        queuer.fill_queue(q)
 
         self.assertEqual(q.qsize(), 4)
 
