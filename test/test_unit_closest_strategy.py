@@ -46,3 +46,34 @@ class TestClosestStrategy(unittest.TestCase):
             message_decoded = message_encoded.decode('utf-8')
 
             self.assertNotEqual(message_decoded, "EE")
+
+        self.assertEqual(queuer.tags_dict["192.168.0.112"].distances_available, 0)
+
+    def test_closest_strategy_triatelation_not_available(self):
+        pass
+
+    def test_closest_strategy_decode(self):
+        tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "DD", [self.anchor_1, self.anchor_2, self.anchor_3, self.anchor_4, self.anchor_5])}
+        
+        queuer = Queuer(tags_dict, ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
+
+        result_q = Queue()
+        decoded_q = Queue()
+
+        result_q.put(('192.168.0.112', 'DIST AA: 4.12m', ('192.168.0.112', 7)))
+        result_q.put(('192.168.0.112', 'DIST BB: 5.91m', ('192.168.0.112', 7)))
+        result_q.put(('192.168.0.112', 'DIST CC: 4.47m', ('192.168.0.112', 7)))
+        result_q.put(('192.168.0.112', 'DIST DD: 8.6m', ('192.168.0.112', 7)))
+
+        queuer.results_decode(result_q, decoded_q)
+
+        tags = queuer.tags_dict["192.168.0.112"]
+
+        self.assertEqual(tags.distances_available, 4)
+        self.assertAlmostEqual(tags.available_devices[0].distance, 4.12, delta=0.05)
+        self.assertAlmostEqual(tags.available_devices[1].distance, 5.91, delta=0.05)
+        self.assertAlmostEqual(tags.available_devices[2].distance, 4.47, delta=0.05)
+        self.assertAlmostEqual(tags.available_devices[2].distance, 8.6, delta=0.05)
+
+if __name__ == "__main__":
+    unittest.main()

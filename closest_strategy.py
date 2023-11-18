@@ -32,5 +32,7 @@ class ClosestStrategy(QueuingStrategy):
                 for i in range(4):
                     self.prepared_queue.put((tag.available_devices[i].uwb_address.encode(), tag.ip, tag.device_port))
 
+                tag.distances_available = 0
+
     def decode_message(self, message_encoded, tags_dict):
         pass
