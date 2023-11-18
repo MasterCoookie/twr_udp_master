@@ -50,7 +50,8 @@ class ClosestStrategy(QueuingStrategy):
             for anchor in tag.available_devices:
                 if anchor.uwb_address == uwb_addr:
                     anchor.distance = distance
-                    tag.distances_available += 1
+                    if tag.distances_available < len(tag.available_devices):
+                        tag.distances_available += 1
                     break
 
 
