@@ -49,6 +49,4 @@ class Queuer:
             tag = UWBTag(ip=value[0], uwb_address=key, device_port=value[1], available_devices=tag_available_devices)
             generated_dict[key] = tag
         
-        return generated_dict
-    
-    
+        return generated_dict    
