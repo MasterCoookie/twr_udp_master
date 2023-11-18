@@ -5,3 +5,5 @@ class UWBTag(UWBDevice):
         super().__init__(ip, device_port, uwb_address)
         self.available_devices = available_devices
 
+        self.distances_available = 0
+

@@ -10,6 +10,8 @@ from queuer import Queuer
 
 class TestClosestStrategy(unittest.TestCase):
     def setUp(self) -> None:
+        print("Testing closest strategy")
+
         self.anchor_1 = UWBDevice(None, None, "AA", 3, 4, 5)
         self.anchor_2 = UWBDevice(None, None, "BB", 2, 2, 2)
         self.anchor_3 = UWBDevice(None, None, "CC", 3, 3, 3)
@@ -25,6 +27,7 @@ class TestClosestStrategy(unittest.TestCase):
         self.anchor_4.distance = 8.6
 
         tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "DD", [self.anchor_1, self.anchor_2, self.anchor_3, self.anchor_4, self.anchor_5])}
+        tags_dict["192.168.0.112"].distances_available = 4
 
         queuer = Queuer(tags_dict, ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
 
