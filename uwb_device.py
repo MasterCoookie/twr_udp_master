@@ -13,3 +13,7 @@ class UWBDevice:
     @property
     def address(self):
         return (self.ip, self.device_port)
+    
+    @property
+    def position(self):
+        return (self.x_pos, self.y_pos, self.z_pos, self.distance)
