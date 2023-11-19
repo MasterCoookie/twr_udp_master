@@ -31,12 +31,13 @@ def uwb_mock(num, ended, verbose=False):
 
             random_result  = randint(0, 10)
 
-            if random_result == 0:
-                receiver_socket.sendto(b'ERR', address)
-                continue
-                
-            if random_result < 3:
-                continue
+            if not moving:
+                if random_result == 0:
+                    receiver_socket.sendto(b'ERR', address)
+                    continue
+                    
+                if random_result < 3:
+                    continue
 
             if moving:
                 rand_distance_full = distances_dict[message_decoded]

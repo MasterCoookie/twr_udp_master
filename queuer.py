@@ -49,7 +49,9 @@ class Queuer:
     def generate_dict(self, ui_passed_dict):
         generated_dict = {}
         for key, value in ui_passed_dict.items():
-            tag_available_devices = [UWBDevice(None, None, device_addr) for device_addr in value[2]]
+            tag_available_devices = [UWBDevice(None, None, device_addr, x, y, z) for device_addr, x, y, z in value[2]]
+            for anchor in tag_available_devices:
+                print("anchor", anchor.uwb_address, anchor.position)
             tag = UWBTag(ip=value[0], uwb_address=key, device_port=value[1], available_devices=tag_available_devices)
             generated_dict[key] = tag
         
