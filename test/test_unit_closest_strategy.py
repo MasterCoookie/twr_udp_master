@@ -92,5 +92,40 @@ class TestClosestStrategy(unittest.TestCase):
         self.assertAlmostEqual(tags.available_devices[2].distance, 5.91, delta=0.05)
         self.assertAlmostEqual(tags.available_devices[3].distance, 8.6, delta=0.05)
 
+    def test_queue_topping(self):
+        print("Testing closest strategy queue topping")
+        q = Queue()
+        tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "DD", [self.anchor_1, self.anchor_2, self.anchor_3, self.anchor_4, self.anchor_5])}
+        
+        queuer = Queuer(tags_dict, ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
+
+        queuer.encode_queue()
+        queuer.fill_queue(q)
+
+        self.assertEqual(q.qsize(), 4)
+
+        self.assertEqual(q.get()[0].decode('utf-8'), "AA")
+
+        queuer.encode_queue()
+        queuer.fill_queue(q)
+
+        self.assertEqual(q.qsize(), 4)
+
+        self.assertEqual(q.get()[0].decode('utf-8'), "BB")
+
+        queuer.encode_queue()
+        queuer.fill_queue(q)
+
+        while not q.empty():
+            message_encoded, ip, target_port = q.get()
+
+            self.assertIsInstance(message_encoded, bytes)
+            self.assertIsInstance(ip, str)
+            self.assertIsInstance(target_port, int)
+
+            message_decoded = message_encoded.decode('utf-8')
+
+            print(message_decoded)
+
 if __name__ == "__main__":
     unittest.main()
