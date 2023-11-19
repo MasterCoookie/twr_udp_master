@@ -93,8 +93,8 @@ class TestQueuer(unittest.TestCase):
 
     def test_generate_dict(self):
         tags = {
-            'AA': ('127.0.0.1', 5001, ['BB', 'CC']),
-            'DD': ('127.0.0.2', 5002, ['EE', 'FF', 'GG'])
+            'AA': ('127.0.0.1', 5001, [('BB', 1, 1, 1), ('CC', 2, 2, 2)]),
+            'DD': ('127.0.0.2', 5002, [('EE', 3, 3, 3), ('FF', 4, 5, 6), ('GG', .5, .5, .5)])
         }
         queuer = Queuer(None, RandomStrategy())
         generated = queuer.generate_dict(tags)
@@ -103,6 +103,12 @@ class TestQueuer(unittest.TestCase):
 
         self.assertIsInstance(generated['AA'], UWBTag)
         self.assertIsInstance(generated['DD'], UWBTag)
+
+        self.assertEqual(generated['AA'].available_devices[0].x_pos, 1)
+        self.assertEqual(generated['AA'].available_devices[1].x_pos, 2)
+        self.assertEqual(generated['DD'].available_devices[0].y_pos, 3)
+        self.assertEqual(generated['DD'].available_devices[1].z_pos, 6)
+        self.assertEqual(generated['DD'].available_devices[2].z_pos, .5)
 
         self.assertIsInstance(generated['AA'].available_devices[0], UWBDevice)
         self.assertIsInstance(generated['AA'].available_devices[1], UWBDevice)
