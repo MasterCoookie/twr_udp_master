@@ -436,7 +436,11 @@ class AnchorInputDialog(QDialog):
         super().reject()
 
     def get_inputs(self):
-        return (self.uwb_address_input.text(), float(self.x_input.text()), float(self.y_input.text()), float(self.z_input.text()))
+        return (self.uwb_address_input.text(),
+                float(self.x_input.text() if self.x_input.text() != '' else 0),
+                float(self.y_input.text() if self.y_input.text() != '' else 0),
+                float(self.z_input.text() if self.z_input.text() != '' else 0)
+        )
 
 
 if __name__ == "__main__":
