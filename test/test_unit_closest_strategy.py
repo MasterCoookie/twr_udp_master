@@ -114,11 +114,23 @@ class TestClosestStrategy(unittest.TestCase):
         self.assertEqual(queuer.queuing_strategy.prepared_queue.qsize(), 0)
 
         self.assertEqual(q.get()[0].decode('utf-8'), "BB")
+        self.assertEqual(q.get()[0].decode('utf-8'), "CC")
 
         queuer.encode_queue()
         queuer.fill_queue(q)
 
+        self.assertEqual(q.qsize(), 1)
+        self.assertEqual(queuer.queuing_strategy.prepared_queue.qsize(), 0)
 
+        self.assertEqual(q.get()[0].decode('utf-8'), "DD")
+
+        queuer.encode_queue()
+        queuer.fill_queue(q)
+
+        self.assertEqual(q.qsize(), 4)
+        self.assertEqual(queuer.queuing_strategy.prepared_queue.qsize(), 0)
+
+        occurred = []
         while not q.empty():
             message_encoded, ip, target_port = q.get()
 
@@ -127,6 +139,11 @@ class TestClosestStrategy(unittest.TestCase):
             self.assertIsInstance(target_port, int)
 
             message_decoded = message_encoded.decode('utf-8')
+
+            if message_decoded not in occurred:
+                occurred.append(message_decoded)
+            else:
+                self.fail("Duplicate message in queue")
 
             print(message_decoded)
 
