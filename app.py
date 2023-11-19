@@ -52,7 +52,7 @@ class Worker(QObject):
         # tags_list = {'AA': ('127.0.0.1', 5001, ['BB'])}
         settings = QSettings("JK", "Queuer")
         # self.queuer = Queuer(self.tags_dict, RandomStrategy())
-        self.queuer = Queuer(self.tags_dict, ClosestStrategy())
+        self.queuer = Queuer(self.tags_dict, ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
         self.udp_socket = UDPSocket(int(settings.value("out_port", "5000")), len(self.tags_dict), post_send_delay=int(settings.value("delay", "100"))/1000)
 
         self.queuer.tags_dict = self.queuer.generate_dict(self.tags_dict)

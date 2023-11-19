@@ -68,7 +68,7 @@ class TestQueuer(unittest.TestCase):
         ended.set()
         p1.join()
 
-        self.assertGreaterEqual(q.qsize(), 3)
+        self.assertGreater(q.qsize(), 0)
         self.assertLessEqual(q.qsize(), 5)
 
         self.check_queue_contents(q)

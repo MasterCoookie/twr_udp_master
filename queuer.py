@@ -13,7 +13,7 @@ class Queuer:
         self.queuing_strategy = queuing_strategy
 
     def fill_queue(self, queue):
-        if queue.qsize() < self.queue_lower_limit:
+        if queue.empty():
             while queue.qsize() < self.queue_upper_limit:
                 if(not self.prepared_queue.empty()):
                     queue.put(self.prepared_queue.get())
@@ -21,7 +21,7 @@ class Queuer:
                     if queue.qsize() > self.queue_lower_limit:
                         break
                     else:
-                        raise Exception("Queue is empty")
+                        raise Exception("Prepared queue is empty")
             self.prepared_queue = Queue()
 
         return queue
