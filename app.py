@@ -193,18 +193,20 @@ class SetupWidget(QWidget):
             pass
 
     def add_tag(self):
-        tag_input_dialog = TagInputDialog(self.anchors_list, self)
+        tag_input_dialog = TagInputDialog([anchor[0] for anchor in self.anchors_list], self)
         if tag_input_dialog.exec():
             uwb_address, ip, port, anchors = tag_input_dialog.get_inputs()
-            # print(anchors)
             self.list_widget.addItem(uwb_address)
+            anchors = [anchor for anchor in self.anchors_list if anchor[0] in anchors]
+            print(anchors)
             self.tags_dict[uwb_address] = (ip, port, anchors)
 
     def add_anchor(self):
-        uwb_address, ok = QInputDialog.getText(self, "Add new UWB Anchor", "UWB Address:")
-        if ok:
-            self.list_widget.addItem(uwb_address)
-            self.anchors_list.append(uwb_address)
+        anchor_input_dialog = AnchorInputDialog(self)
+        if anchor_input_dialog.exec():
+            result= anchor_input_dialog.get_inputs()
+            self.list_widget.addItem(result[0])
+            self.anchors_list.append(result)
 
     def remove_device(self):
         if(self.list_widget.currentItem()):
@@ -387,6 +389,39 @@ class TagInputDialog(QDialog):
 
     def get_inputs(self):
         return (self.uwb_address_input.text(), self.ip_input.text(), int(self.port_input.text()), [item.text() for item in self.list_widget.selectedItems()])
+
+class AnchorInputDialog(QDialog):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.setWindowTitle("Input Anchor")
+
+        self.uwb_address_input = QLineEdit(self)
+        self.x_input = QLineEdit(self)
+        self.y_input = QLineEdit(self)
+        self.z_input = QLineEdit(self)
+
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
+
+        layout = QFormLayout(self)
+        layout.addRow("UWB Address:", self.uwb_address_input)
+        layout.addRow("X:", self.x_input)
+        layout.addRow("Y:", self.y_input)
+        layout.addRow("Z:", self.z_input)
+
+        layout.addWidget(button_box)
+
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+
+    def accept(self):
+        super().accept()
+
+    def reject(self):
+        super().reject()
+
+    def get_inputs(self):
+        return (self.uwb_address_input.text(), float(self.x_input.text()), float(self.y_input.text()), float(self.z_input.text()))
 
 
 if __name__ == "__main__":
