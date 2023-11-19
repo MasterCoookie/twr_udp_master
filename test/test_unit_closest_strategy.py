@@ -103,18 +103,21 @@ class TestClosestStrategy(unittest.TestCase):
         queuer.fill_queue(q)
 
         self.assertEqual(q.qsize(), 4)
+        self.assertEqual(queuer.queuing_strategy.prepared_queue.qsize(), 0)
 
         self.assertEqual(q.get()[0].decode('utf-8'), "AA")
 
         queuer.encode_queue()
         queuer.fill_queue(q)
 
-        self.assertEqual(q.qsize(), 4)
+        self.assertEqual(q.qsize(), 3)
+        self.assertEqual(queuer.queuing_strategy.prepared_queue.qsize(), 0)
 
         self.assertEqual(q.get()[0].decode('utf-8'), "BB")
 
         queuer.encode_queue()
         queuer.fill_queue(q)
+
 
         while not q.empty():
             message_encoded, ip, target_port = q.get()
