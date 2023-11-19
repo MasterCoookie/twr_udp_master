@@ -247,6 +247,15 @@ class CounterLabel(QLabel):
         self.counter += 1
         self.setText(f"{self.label_text} {self.counter}")
 
+class EndWidget(QWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.setup_ui()
+    
+    def setup_ui(self):
+        pass
+
 class WorkingWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -343,11 +352,17 @@ class MainWindow(QMainWindow):
         self.worker.error_signal.connect(self.working_widget.error_counter.increment)
         self.worker.total_signal.connect(self.working_widget.total_counter.increment)
 
+        self.worker.finished.connect(self.switch_to_end)
+
         self.worker_thread.start()
 
 
     def update_result(self, result):
         logging.warning(result)
+
+    def switch_to_end(self):
+        self.end_widget = EndWidget(self)
+        self.setCentralWidget(self.end_widget)
 
 class TagInputDialog(QDialog):
     def __init__(self, anchors_list, *args, **kwargs):
