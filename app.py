@@ -254,7 +254,7 @@ class CounterLabel(QLabel):
         self.setText(f"{self.label_text} {self.counter}")
 
 class EndWidget(QWidget):
-    def __init__(self, success_counter, timeout_counter, error_counter, total_counter, *args, **kwargs):
+    def __init__(self, success_counter, timeout_counter, error_counter, total_counter, operation_time, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.parent().setFixedSize(290, 350)
@@ -264,6 +264,8 @@ class EndWidget(QWidget):
         self.timeout_counter = timeout_counter
         self.error_counter = error_counter
         self.total_counter = total_counter
+
+        self.operation_time = operation_time
 
         self.setup_ui()
     
@@ -304,6 +306,12 @@ class EndWidget(QWidget):
         self.log_file_size_label = QLabel(f"Log file size: {log_file_size}kB", self)
         self.log_file_size_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
+        formatted_time = time.strftime('%H:%M:%S', time.gmtime(self.operation_time))
+
+        self.operation_time_label = QLabel(f"Operation time: {formatted_time}s", self)
+        self.operation_time_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+
         exit_button = QPushButton("Exit", self)
         exit_button.clicked.connect(self.parent().close)
 
@@ -324,6 +332,7 @@ class EndWidget(QWidget):
         layout.addWidget(self.total_counter_label)
         layout.addWidget(self.succes_rate_label)
         layout.addWidget(self.log_file_size_label)
+        layout.addWidget(self.operation_time_label)
         layout.addWidget(buttonbox)
 
 class WorkingWidget(QWidget):
@@ -398,6 +407,7 @@ class MainWindow(QMainWindow):
         
     
     def start(self):
+        self.time_started = time.time()
         self.working_widget = WorkingWidget(self)
         self.setCentralWidget(self.working_widget)
         self.setWindowTitle("JK Queuer - Working")
@@ -437,6 +447,7 @@ class MainWindow(QMainWindow):
                                     self.working_widget.timeout_counter.counter,
                                     self.working_widget.error_counter.counter,
                                     self.working_widget.total_counter.counter,
+                                    time.time() - self.time_started,
                                     self
                                 )
         self.setCentralWidget(self.end_widget)
