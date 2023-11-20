@@ -10,7 +10,7 @@ from closest_strategy import ClosestStrategy
 from multiprocessing import Queue, Process, Event
 
 from PyQt6 import QtGui
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit, QFileDialog, QCheckBox
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit, QFileDialog, QCheckBox, QFrame
 from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot, Qt, QSettings
 
 ended = Event()
@@ -273,6 +273,11 @@ class EndWidget(QWidget):
         self.label = QLabel("Monitoring Finished", self)
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
+        self.label.setFont(QtGui.QFont("Arial", 16, QtGui.QFont.Weight.Bold))
+
+        self.separator = QFrame(self)
+        self.separator.setFrameShape(QFrame.Shape.HLine)
+
         self.success_counter_label = QLabel(f"Successes: {self.success_counter}", self)
         self.success_counter_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -285,11 +290,19 @@ class EndWidget(QWidget):
         self.total_counter_label = QLabel(f"Total: {self.total_counter}", self)
         self.total_counter_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
+        success_rate = (self.success_counter / self.total_counter) * 100 if self.total_counter != 0 else 0
+
+        self.succes_rate_label = QLabel(f"Success rate: {success_rate}%", self)
+        self.succes_rate_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
         layout.addWidget(self.label)
+        #line trhough
+        layout.addWidget(self.separator)
         layout.addWidget(self.success_counter_label)
         layout.addWidget(self.timeout_counter_label)
         layout.addWidget(self.error_counter_label)
         layout.addWidget(self.total_counter_label)
+        layout.addWidget(self.succes_rate_label)
 
 class WorkingWidget(QWidget):
     def __init__(self, *args, **kwargs):
