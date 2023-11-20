@@ -304,6 +304,17 @@ class EndWidget(QWidget):
         self.log_file_size_label = QLabel(f"Log file size: {log_file_size}kB", self)
         self.log_file_size_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
+        exit_button = QPushButton("Exit", self)
+        exit_button.clicked.connect(self.parent().close)
+
+        restart_button = QPushButton("Restart", self)
+        restart_button.clicked.connect(self.parent().setup_ui)
+
+        buttonbox = QDialogButtonBox(self)
+        buttonbox.addButton(exit_button, QDialogButtonBox.ButtonRole.RejectRole)
+        buttonbox.addButton(restart_button, QDialogButtonBox.ButtonRole.AcceptRole)
+        buttonbox.setCenterButtons(True)
+
         layout.addWidget(self.label)
         #line trhough
         layout.addWidget(self.separator)
@@ -313,6 +324,7 @@ class EndWidget(QWidget):
         layout.addWidget(self.total_counter_label)
         layout.addWidget(self.succes_rate_label)
         layout.addWidget(self.log_file_size_label)
+        layout.addWidget(buttonbox)
 
 class WorkingWidget(QWidget):
     def __init__(self, *args, **kwargs):
