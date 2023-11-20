@@ -1,4 +1,5 @@
 import sys
+import os
 import time
 import logging
 
@@ -295,6 +296,14 @@ class EndWidget(QWidget):
         self.succes_rate_label = QLabel(f"Success rate: {success_rate}%", self)
         self.succes_rate_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
+        settings = QSettings("JK", "Queuer")
+
+        log_file_size = os.path.getsize(settings.value("log_dir", "./") + "results.log") / 1024
+        log_file_size = round(log_file_size, 2)
+
+        self.log_file_size_label = QLabel(f"Log file size: {log_file_size}kB", self)
+        self.log_file_size_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
         layout.addWidget(self.label)
         #line trhough
         layout.addWidget(self.separator)
@@ -303,6 +312,7 @@ class EndWidget(QWidget):
         layout.addWidget(self.error_counter_label)
         layout.addWidget(self.total_counter_label)
         layout.addWidget(self.succes_rate_label)
+        layout.addWidget(self.log_file_size_label)
 
 class WorkingWidget(QWidget):
     def __init__(self, *args, **kwargs):
