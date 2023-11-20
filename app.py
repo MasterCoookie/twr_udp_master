@@ -256,10 +256,21 @@ class EndWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.parent().setFixedSize(290, 350)
+        self.parent().setWindowTitle("JK Queuer - Summary")
+
         self.setup_ui()
     
     def setup_ui(self):
-        pass
+
+
+        layout = QFormLayout(self)
+        self.setLayout(layout)
+
+        self.label = QLabel("Monitoring Finished", self)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        layout.addWidget(self.label)
 
 class WorkingWidget(QWidget):
     def __init__(self, *args, **kwargs):
