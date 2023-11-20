@@ -295,8 +295,18 @@ class EndWidget(QWidget):
 
         success_rate = (self.success_counter / self.total_counter) * 100 if self.total_counter != 0 else 0
 
-        self.succes_rate_label = QLabel(f"Success rate: {success_rate}%", self)
+        self.succes_rate_label = QLabel(f"Success rate: {round(success_rate, 2)}%", self)
         self.succes_rate_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        error_rate = (self.error_counter / self.total_counter) * 100 if self.total_counter != 0 else 0
+
+        self.error_rate_label = QLabel(f"Error rate: {round(error_rate, 2)}%", self)
+        self.error_rate_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        timeout_rate = (self.timeout_counter / self.total_counter) * 100 if self.total_counter != 0 else 0
+
+        self.timeout_rate_label = QLabel(f"Timeout rate: {round(timeout_rate, 2)}%", self)
+        self.timeout_rate_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         settings = QSettings("JK", "Queuer")
 
@@ -331,6 +341,8 @@ class EndWidget(QWidget):
         layout.addWidget(self.error_counter_label)
         layout.addWidget(self.total_counter_label)
         layout.addWidget(self.succes_rate_label)
+        layout.addWidget(self.error_rate_label)
+        layout.addWidget(self.timeout_rate_label)
         layout.addWidget(self.log_file_size_label)
         layout.addWidget(self.operation_time_label)
         layout.addWidget(buttonbox)
