@@ -253,24 +253,43 @@ class CounterLabel(QLabel):
         self.setText(f"{self.label_text} {self.counter}")
 
 class EndWidget(QWidget):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, success_counter, timeout_counter, error_counter, total_counter, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.parent().setFixedSize(290, 350)
         self.parent().setWindowTitle("JK Queuer - Summary")
 
+        self.success_counter = success_counter
+        self.timeout_counter = timeout_counter
+        self.error_counter = error_counter
+        self.total_counter = total_counter
+
         self.setup_ui()
     
     def setup_ui(self):
-
-
         layout = QFormLayout(self)
         self.setLayout(layout)
 
         self.label = QLabel("Monitoring Finished", self)
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
+        self.success_counter_label = QLabel(f"Successes: {self.success_counter}", self)
+        self.success_counter_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.timeout_counter_label = QLabel(f"Timeouts: {self.timeout_counter}", self)
+        self.timeout_counter_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.error_counter_label = QLabel(f"Errors: {self.error_counter}", self)
+        self.error_counter_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.total_counter_label = QLabel(f"Total: {self.total_counter}", self)
+        self.total_counter_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
         layout.addWidget(self.label)
+        layout.addWidget(self.success_counter_label)
+        layout.addWidget(self.timeout_counter_label)
+        layout.addWidget(self.error_counter_label)
+        layout.addWidget(self.total_counter_label)
 
 class WorkingWidget(QWidget):
     def __init__(self, *args, **kwargs):
@@ -379,7 +398,12 @@ class MainWindow(QMainWindow):
         logging.warning(result)
 
     def switch_to_end(self):
-        self.end_widget = EndWidget(self)
+        self.end_widget = EndWidget(self.working_widget.success_counter.counter,
+                                    self.working_widget.timeout_counter.counter,
+                                    self.working_widget.error_counter.counter,
+                                    self.working_widget.total_counter.counter,
+                                    self
+                                )
         self.setCentralWidget(self.end_widget)
 
 class TagInputDialog(QDialog):
