@@ -57,6 +57,11 @@ class Worker(QObject):
 
         self.queuer.tags_dict = self.queuer.generate_dict(self.tags_dict)
 
+        file_handler = logging.FileHandler(f'{settings.value("log_dir", "./")}/results.log')
+        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
+        logging.getLogger().addHandler(file_handler)
+
+
         p1 = Process(target=self.queuer.queing_process, args=(ended, self.msg_q))
         p2 = Process(target=self.udp_socket.sending_process, args=(ended, self.msg_q, self.result_q))
 
@@ -273,6 +278,8 @@ class WorkingWidget(QWidget):
         self.logger.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
         logging.getLogger().addHandler(self.logger)
         logging.getLogger().setLevel(logging.DEBUG)
+
+        
 
         self.total_counter = CounterLabel("Total", self)
         self.success_counter = CounterLabel("Successes:", self)
