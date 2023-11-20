@@ -267,7 +267,20 @@ class EndWidget(QWidget):
 
         self.operation_time = operation_time
 
+        self.calculate_stats()
+
         self.setup_ui()
+
+    def calculate_stats(self):
+        self.success_rate = (self.success_counter / self.total_counter) * 100 if self.total_counter != 0 else 0
+        self.error_rate = (self.error_counter / self.total_counter) * 100 if self.total_counter != 0 else 0
+        self.timeout_rate = (self.timeout_counter / self.total_counter) * 100 if self.total_counter != 0 else 0
+        self.formatted_time = time.strftime('%H:%M:%S', time.gmtime(self.operation_time))
+
+        settings = QSettings("JK", "Queuer")
+
+        self.log_file_size = os.path.getsize(settings.value("log_dir", "./") + "results.log") / 1024
+        self.log_file_size = round(self.log_file_size, 2)
     
     def setup_ui(self):
         layout = QFormLayout(self)
@@ -293,34 +306,20 @@ class EndWidget(QWidget):
         self.total_counter_label = QLabel(f"Total: {self.total_counter}", self)
         self.total_counter_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        success_rate = (self.success_counter / self.total_counter) * 100 if self.total_counter != 0 else 0
-
-        self.succes_rate_label = QLabel(f"Success rate: {round(success_rate, 2)}%", self)
+        self.succes_rate_label = QLabel(f"Success rate: {round(self.success_rate, 2)}%", self)
         self.succes_rate_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        error_rate = (self.error_counter / self.total_counter) * 100 if self.total_counter != 0 else 0
-
-        self.error_rate_label = QLabel(f"Error rate: {round(error_rate, 2)}%", self)
+        self.error_rate_label = QLabel(f"Error rate: {round(self.error_rate, 2)}%", self)
         self.error_rate_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        timeout_rate = (self.timeout_counter / self.total_counter) * 100 if self.total_counter != 0 else 0
-
-        self.timeout_rate_label = QLabel(f"Timeout rate: {round(timeout_rate, 2)}%", self)
+        self.timeout_rate_label = QLabel(f"Timeout rate: {round(self.timeout_rate, 2)}%", self)
         self.timeout_rate_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        settings = QSettings("JK", "Queuer")
-
-        log_file_size = os.path.getsize(settings.value("log_dir", "./") + "results.log") / 1024
-        log_file_size = round(log_file_size, 2)
-
-        self.log_file_size_label = QLabel(f"Log file size: {log_file_size}kB", self)
+        self.log_file_size_label = QLabel(f"Log file size: {self.log_file_size}kB", self)
         self.log_file_size_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        formatted_time = time.strftime('%H:%M:%S', time.gmtime(self.operation_time))
-
-        self.operation_time_label = QLabel(f"Operation time: {formatted_time}s", self)
+        self.operation_time_label = QLabel(f"Operation time: {self.formatted_time}s", self)
         self.operation_time_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
 
         exit_button = QPushButton("Exit", self)
         exit_button.clicked.connect(self.parent().close)
