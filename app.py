@@ -281,6 +281,22 @@ class EndWidget(QWidget):
 
         self.log_file_size = os.path.getsize(settings.value("log_dir", "./") + "results.log") / 1024
         self.log_file_size = round(self.log_file_size, 2)
+
+    def dump_stats(self):
+        settings = QSettings("JK", "Queuer")
+        with open(settings.value("log_dir", "./") + "stats.txt", "w") as f:
+            f.write(f"Successes: {self.success_counter}\n")
+            f.write(f"Timeouts: {self.timeout_counter}\n")
+            f.write(f"Errors: {self.error_counter}\n")
+            f.write(f"Total: {self.total_counter}\n")
+            f.write(f"Success rate: {round(self.success_rate, 2)}%\n")
+            f.write(f"Error rate: {round(self.error_rate, 2)}%\n")
+            f.write(f"Timeout rate: {round(self.timeout_rate, 2)}%\n")
+            f.write(f"Log file size: {self.log_file_size}kB\n")
+            f.write(f"Operation time: {self.formatted_time}s\n")
+
+        self.dump_stats_button.setText("Stats saved")
+        self.dump_stats_button.setEnabled(False)
     
     def setup_ui(self):
         layout = QFormLayout(self)
@@ -321,6 +337,9 @@ class EndWidget(QWidget):
         self.operation_time_label = QLabel(f"Operation time: {self.formatted_time}s", self)
         self.operation_time_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
+        self.dump_stats_button = QPushButton("Save stats to file", self)
+        self.dump_stats_button.clicked.connect(self.dump_stats)
+
         exit_button = QPushButton("Exit", self)
         exit_button.clicked.connect(self.parent().close)
 
@@ -344,6 +363,7 @@ class EndWidget(QWidget):
         layout.addWidget(self.timeout_rate_label)
         layout.addWidget(self.log_file_size_label)
         layout.addWidget(self.operation_time_label)
+        layout.addWidget(self.dump_stats_button)
         layout.addWidget(buttonbox)
 
 class WorkingWidget(QWidget):
