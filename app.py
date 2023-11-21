@@ -1,4 +1,5 @@
 import sys
+import os
 import time
 import logging
 
@@ -10,7 +11,7 @@ from closest_strategy import ClosestStrategy
 from multiprocessing import Queue, Process, Event
 
 from PyQt6 import QtGui
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit, QFileDialog, QCheckBox
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit, QFileDialog, QCheckBox, QFrame
 from PyQt6.QtCore import QThread, QObject, QSize, pyqtSignal as Signal, pyqtSlot as Slot, Qt, QSettings
 
 ended = Event()
@@ -56,6 +57,11 @@ class Worker(QObject):
         self.udp_socket = UDPSocket(int(settings.value("out_port", "5000")), len(self.tags_dict), post_send_delay=int(settings.value("delay", "100"))/1000)
 
         self.queuer.tags_dict = self.queuer.generate_dict(self.tags_dict)
+
+        file_handler = logging.FileHandler(f'{settings.value("log_dir", "./")}/results.log')
+        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
+        logging.getLogger().addHandler(file_handler)
+
 
         p1 = Process(target=self.queuer.queing_process, args=(ended, self.msg_q))
         p2 = Process(target=self.udp_socket.sending_process, args=(ended, self.msg_q, self.result_q))
@@ -247,6 +253,126 @@ class CounterLabel(QLabel):
         self.counter += 1
         self.setText(f"{self.label_text} {self.counter}")
 
+class EndWidget(QWidget):
+    def __init__(self, success_counter, timeout_counter, error_counter, total_counter, operation_time, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.parent().setFixedSize(290, 318)
+        self.parent().setWindowTitle("JK Queuer - Summary")
+
+        self.success_counter = success_counter
+        self.timeout_counter = timeout_counter
+        self.error_counter = error_counter
+        self.total_counter = total_counter
+
+        self.operation_time = operation_time
+
+        self.calculate_stats()
+
+        self.setup_ui()
+
+    def calculate_stats(self):
+        self.success_rate = (self.success_counter / self.total_counter) * 100 if self.total_counter != 0 else 0
+        self.error_rate = (self.error_counter / self.total_counter) * 100 if self.total_counter != 0 else 0
+        self.timeout_rate = (self.timeout_counter / self.total_counter) * 100 if self.total_counter != 0 else 0
+        self.formatted_time = time.strftime('%H:%M:%S', time.gmtime(self.operation_time))
+
+        settings = QSettings("JK", "Queuer")
+
+        self.log_file_size = os.path.getsize(settings.value("log_dir", "./") + "results.log") / 1024
+        self.log_file_size = round(self.log_file_size, 2)
+
+    def dump_stats(self):
+        settings = QSettings("JK", "Queuer")
+        with open(settings.value("log_dir", "./") + "stats.txt", "w") as f:
+            f.write(f"Successes: {self.success_counter}\n")
+            f.write(f"Timeouts: {self.timeout_counter}\n")
+            f.write(f"Errors: {self.error_counter}\n")
+            f.write(f"Total: {self.total_counter}\n")
+            f.write(f"Success rate: {round(self.success_rate, 2)}%\n")
+            f.write(f"Error rate: {round(self.error_rate, 2)}%\n")
+            f.write(f"Timeout rate: {round(self.timeout_rate, 2)}%\n")
+            f.write(f"Log file size: {self.log_file_size}kB\n")
+            f.write(f"Operation time: {self.formatted_time}s\n")
+
+        self.dump_stats_button.setText("Stats saved")
+        self.dump_stats_button.setEnabled(False)
+    
+    def setup_ui(self):
+        layout = QFormLayout(self)
+        self.setLayout(layout)
+
+        self.label = QLabel("Monitoring Finished", self)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.label.setFont(QtGui.QFont("Arial", 16, QtGui.QFont.Weight.Bold))
+
+        separator = QFrame(self)
+        separator.setFrameShape(QFrame.Shape.HLine)
+
+        separator2 = QFrame(self)
+        separator2.setFrameShape(QFrame.Shape.HLine)
+
+        self.success_counter_label = QLabel(f"Successes: {self.success_counter}", self)
+        self.success_counter_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.timeout_counter_label = QLabel(f"Timeouts: {self.timeout_counter}", self)
+        self.timeout_counter_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.error_counter_label = QLabel(f"Errors: {self.error_counter}", self)
+        self.error_counter_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.total_counter_label = QLabel(f"Total: {self.total_counter}", self)
+        self.total_counter_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.succes_rate_label = QLabel(f"Success rate: {round(self.success_rate, 2)}%", self)
+        self.succes_rate_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.error_rate_label = QLabel(f"Error rate: {round(self.error_rate, 2)}%", self)
+        self.error_rate_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.timeout_rate_label = QLabel(f"Timeout rate: {round(self.timeout_rate, 2)}%", self)
+        self.timeout_rate_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.log_file_size_label = QLabel(f"Log file size: {self.log_file_size}kB", self)
+        self.log_file_size_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.operation_time_label = QLabel(f"Operation time: {self.formatted_time}s", self)
+        self.operation_time_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.dump_stats_button = QPushButton("Save stats to file", self)
+        self.dump_stats_button.clicked.connect(self.dump_stats)
+        self.dump_stats_button.setFixedWidth(170)
+        dump_buttonbox = QDialogButtonBox(self)
+        dump_buttonbox.addButton(self.dump_stats_button, QDialogButtonBox.ButtonRole.AcceptRole)
+        dump_buttonbox.setCenterButtons(True)
+
+        exit_button = QPushButton("Exit", self)
+        exit_button.clicked.connect(self.parent().close)
+
+        restart_button = QPushButton("Restart", self)
+        restart_button.clicked.connect(self.parent().setup_ui)
+
+        buttonbox = QDialogButtonBox(self)
+        buttonbox.addButton(exit_button, QDialogButtonBox.ButtonRole.RejectRole)
+        buttonbox.addButton(restart_button, QDialogButtonBox.ButtonRole.AcceptRole)
+        buttonbox.setCenterButtons(True)
+
+        layout.addWidget(self.label)
+        layout.addWidget(separator)
+        layout.addWidget(self.success_counter_label)
+        layout.addWidget(self.timeout_counter_label)
+        layout.addWidget(self.error_counter_label)
+        layout.addWidget(self.total_counter_label)
+        layout.addWidget(self.succes_rate_label)
+        layout.addWidget(self.error_rate_label)
+        layout.addWidget(self.timeout_rate_label)
+        layout.addWidget(self.log_file_size_label)
+        layout.addWidget(self.operation_time_label)
+        layout.addWidget(dump_buttonbox)
+        layout.addWidget(separator2)
+        layout.addWidget(buttonbox)
+
 class WorkingWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -264,6 +390,8 @@ class WorkingWidget(QWidget):
         self.logger.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
         logging.getLogger().addHandler(self.logger)
         logging.getLogger().setLevel(logging.DEBUG)
+
+        
 
         self.total_counter = CounterLabel("Total", self)
         self.success_counter = CounterLabel("Successes:", self)
@@ -317,6 +445,7 @@ class MainWindow(QMainWindow):
         
     
     def start(self):
+        self.time_started = time.time()
         self.working_widget = WorkingWidget(self)
         self.setCentralWidget(self.working_widget)
         self.setWindowTitle("JK Queuer - Working")
@@ -343,11 +472,23 @@ class MainWindow(QMainWindow):
         self.worker.error_signal.connect(self.working_widget.error_counter.increment)
         self.worker.total_signal.connect(self.working_widget.total_counter.increment)
 
+        self.worker.finished.connect(self.switch_to_end)
+
         self.worker_thread.start()
 
 
     def update_result(self, result):
         logging.warning(result)
+
+    def switch_to_end(self):
+        self.end_widget = EndWidget(self.working_widget.success_counter.counter,
+                                    self.working_widget.timeout_counter.counter,
+                                    self.working_widget.error_counter.counter,
+                                    self.working_widget.total_counter.counter,
+                                    time.time() - self.time_started,
+                                    self
+                                )
+        self.setCentralWidget(self.end_widget)
 
 class TagInputDialog(QDialog):
     def __init__(self, anchors_list, *args, **kwargs):
@@ -421,7 +562,11 @@ class AnchorInputDialog(QDialog):
         super().reject()
 
     def get_inputs(self):
-        return (self.uwb_address_input.text(), float(self.x_input.text()), float(self.y_input.text()), float(self.z_input.text()))
+        return (self.uwb_address_input.text(),
+                float(self.x_input.text() if self.x_input.text() != '' else 0),
+                float(self.y_input.text() if self.y_input.text() != '' else 0),
+                float(self.z_input.text() if self.z_input.text() != '' else 0)
+        )
 
 
 if __name__ == "__main__":
