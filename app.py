@@ -257,7 +257,7 @@ class EndWidget(QWidget):
     def __init__(self, success_counter, timeout_counter, error_counter, total_counter, operation_time, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.parent().setFixedSize(290, 350)
+        self.parent().setFixedSize(290, 318)
         self.parent().setWindowTitle("JK Queuer - Summary")
 
         self.success_counter = success_counter
@@ -307,8 +307,11 @@ class EndWidget(QWidget):
 
         self.label.setFont(QtGui.QFont("Arial", 16, QtGui.QFont.Weight.Bold))
 
-        self.separator = QFrame(self)
-        self.separator.setFrameShape(QFrame.Shape.HLine)
+        separator = QFrame(self)
+        separator.setFrameShape(QFrame.Shape.HLine)
+
+        separator2 = QFrame(self)
+        separator2.setFrameShape(QFrame.Shape.HLine)
 
         self.success_counter_label = QLabel(f"Successes: {self.success_counter}", self)
         self.success_counter_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -339,6 +342,10 @@ class EndWidget(QWidget):
 
         self.dump_stats_button = QPushButton("Save stats to file", self)
         self.dump_stats_button.clicked.connect(self.dump_stats)
+        self.dump_stats_button.setFixedWidth(170)
+        dump_buttonbox = QDialogButtonBox(self)
+        dump_buttonbox.addButton(self.dump_stats_button, QDialogButtonBox.ButtonRole.AcceptRole)
+        dump_buttonbox.setCenterButtons(True)
 
         exit_button = QPushButton("Exit", self)
         exit_button.clicked.connect(self.parent().close)
@@ -352,8 +359,7 @@ class EndWidget(QWidget):
         buttonbox.setCenterButtons(True)
 
         layout.addWidget(self.label)
-        #line trhough
-        layout.addWidget(self.separator)
+        layout.addWidget(separator)
         layout.addWidget(self.success_counter_label)
         layout.addWidget(self.timeout_counter_label)
         layout.addWidget(self.error_counter_label)
@@ -363,7 +369,8 @@ class EndWidget(QWidget):
         layout.addWidget(self.timeout_rate_label)
         layout.addWidget(self.log_file_size_label)
         layout.addWidget(self.operation_time_label)
-        layout.addWidget(self.dump_stats_button)
+        layout.addWidget(dump_buttonbox)
+        layout.addWidget(separator2)
         layout.addWidget(buttonbox)
 
 class WorkingWidget(QWidget):
