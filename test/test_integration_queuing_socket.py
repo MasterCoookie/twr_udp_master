@@ -1,7 +1,7 @@
 import unittest
 import time
 
-from multiprocessing import Process, Queue, Event
+from multiprocessing import Process, Queue, Event, Manager
 
 from queuer import Queuer
 from random_startegy import RandomStrategy
@@ -18,7 +18,8 @@ class TestQueuerSocket(unittest.TestCase):
         anchor_1 = UWBDevice(None, None, "AA")
         anchor_2 = UWBDevice(None, None, "BB")
         tags_dict = {"127.0.0.1": UWBTag("127.0.0.1", RECEIVER_PORT, "DD", [anchor_1, anchor_2]), "127.0.0.1": UWBTag("127.0.0.1", RECEIVER_PORT, "EE", [anchor_1, anchor_2])}
-        self.queuer = Queuer(tags_dict, RandomStrategy())
+        self.dict_managed = Manager().dict(tags_dict)
+        self.queuer = Queuer(RandomStrategy())
         self.udp_socket = UDPSocket(5000, 2)
 
         self.timeout_counter = 0            
@@ -30,7 +31,7 @@ class TestQueuerSocket(unittest.TestCase):
         ended = Event()
         ended.clear()
 
-        p1 = Process(target=self.queuer.queing_process, args=(ended, msg_q))
+        p1 = Process(target=self.queuer.queing_process, args=(ended, msg_q, self.dict_managed))
         p2 = Process(target=self.udp_socket.sending_process, args=(ended, msg_q, result_q, True))
         p3 = Process(target=receiver_process, args=(ended, ))
 

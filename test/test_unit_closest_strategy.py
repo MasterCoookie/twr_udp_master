@@ -1,6 +1,6 @@
 import unittest
 
-from multiprocessing import Queue
+from multiprocessing import Queue, Manager
 
 from closest_strategy import ClosestStrategy
 from uwb_tag import UWBTag
@@ -26,12 +26,13 @@ class TestClosestStrategy(unittest.TestCase):
         self.anchor_3.distance = 4.47
         self.anchor_4.distance = 8.6
 
-        tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "FF", [self.anchor_1, self.anchor_2, self.anchor_3, self.anchor_4, self.anchor_5])}
-        tags_dict["192.168.0.112"].distances_available = 4
+        tags_dict = {"FF": UWBTag("192.168.0.112", 7, "FF", [self.anchor_1, self.anchor_2, self.anchor_3, self.anchor_4, self.anchor_5])}
+        tags_dict["FF"].distances_available = 4
 
-        queuer = Queuer(tags_dict, ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
+        dict_managed = Manager().dict(tags_dict)
+        queuer = Queuer(ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
 
-        queuer.encode_queue()
+        queuer.encode_queue(dict_managed)
         queuer.fill_queue(q)
 
         self.assertEqual(q.qsize(), 4)
@@ -46,17 +47,17 @@ class TestClosestStrategy(unittest.TestCase):
             message_decoded = message_encoded.decode('utf-8')
 
             self.assertNotEqual(message_decoded, "EE")
-
-        self.assertEqual(queuer.tags_dict["192.168.0.112"].distances_available, 0)
+        print("managed:", dict_managed)
+        self.assertEqual(dict_managed["FF"].distances_available, 4)
 
     def test_closest_strategy_triatelation_not_available(self):
         print("Testing closest strategy trilateration not available")
         q = Queue()
-        tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "DD", [self.anchor_1, self.anchor_2, self.anchor_3, self.anchor_4, self.anchor_5])}
-        
-        queuer = Queuer(tags_dict, ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=5)
+        tags_dict = {"FF": UWBTag("192.168.0.112", 7, "DD", [self.anchor_1, self.anchor_2, self.anchor_3, self.anchor_4, self.anchor_5])}
+        dict_managed = Manager().dict(tags_dict)
+        queuer = Queuer(ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=5)
 
-        queuer.encode_queue()
+        queuer.encode_queue(dict_managed)
         queuer.fill_queue(q)
 
         self.assertEqual(q.qsize(), 5)
@@ -70,9 +71,9 @@ class TestClosestStrategy(unittest.TestCase):
 
     def test_closest_strategy_decode(self):
         print("Testing closest strategy decode")
-        tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "DD", [self.anchor_1, self.anchor_2, self.anchor_3, self.anchor_4, self.anchor_5])}
-        
-        queuer = Queuer(tags_dict, ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
+        tags_dict = {"FF": UWBTag("192.168.0.112", 7, "FF", [self.anchor_1, self.anchor_2, self.anchor_3, self.anchor_4, self.anchor_5])}
+        dict_managed = Manager().dict(tags_dict)
+        queuer = Queuer(ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
 
         result_q = Queue()
         decoded_q = Queue()
@@ -82,24 +83,25 @@ class TestClosestStrategy(unittest.TestCase):
         result_q.put(('192.168.0.112', b'DIST CC: 4.47m', ('192.168.0.112', 7)))
         result_q.put(('192.168.0.112', b'DIST DD: 8.6m', ('192.168.0.112', 7)))
 
-        queuer.results_decode(result_q, decoded_q)
+        queuer.results_decode(result_q, decoded_q, dict_managed)
 
-        tags = queuer.tags_dict["192.168.0.112"]
+        tags = dict_managed["FF"]
 
         self.assertEqual(decoded_q.qsize(), 4)
-        self.assertAlmostEqual(tags.available_devices[0].distance, 4.12, delta=0.05)
-        self.assertAlmostEqual(tags.available_devices[1].distance, 4.47, delta=0.05)
-        self.assertAlmostEqual(tags.available_devices[2].distance, 5.91, delta=0.05)
-        self.assertAlmostEqual(tags.available_devices[3].distance, 8.6, delta=0.05)
+        self.assertEqual(tags.distances_available, 4)
+        self.assertAlmostEqual(float(tags.available_devices[0].distance), 4.12, delta=0.05)
+        self.assertAlmostEqual(float(tags.available_devices[1].distance), 4.47, delta=0.05)
+        self.assertAlmostEqual(float(tags.available_devices[2].distance), 5.91, delta=0.05)
+        self.assertAlmostEqual(float(tags.available_devices[3].distance), 8.6, delta=0.05)
 
     def test_queue_topping(self):
         print("Testing closest strategy queue topping")
         q = Queue()
         tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "DD", [self.anchor_1, self.anchor_2, self.anchor_3, self.anchor_4, self.anchor_5])}
-        
-        queuer = Queuer(tags_dict, ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
+        dict_managed = Manager().dict(tags_dict)
+        queuer = Queuer(ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
 
-        queuer.encode_queue()
+        queuer.encode_queue(dict_managed)
         queuer.fill_queue(q)
 
         self.assertEqual(q.qsize(), 4)
@@ -107,7 +109,7 @@ class TestClosestStrategy(unittest.TestCase):
 
         self.assertEqual(q.get()[0].decode('utf-8'), "AA")
 
-        queuer.encode_queue()
+        queuer.encode_queue(dict_managed)
         queuer.fill_queue(q)
 
         self.assertEqual(q.qsize(), 3)
@@ -116,7 +118,7 @@ class TestClosestStrategy(unittest.TestCase):
         self.assertEqual(q.get()[0].decode('utf-8'), "BB")
         self.assertEqual(q.get()[0].decode('utf-8'), "CC")
 
-        queuer.encode_queue()
+        queuer.encode_queue(dict_managed)
         queuer.fill_queue(q)
 
         self.assertEqual(q.qsize(), 1)
@@ -124,7 +126,7 @@ class TestClosestStrategy(unittest.TestCase):
 
         self.assertEqual(q.get()[0].decode('utf-8'), "DD")
 
-        queuer.encode_queue()
+        queuer.encode_queue(dict_managed)
         queuer.fill_queue(q)
 
         self.assertEqual(q.qsize(), 4)

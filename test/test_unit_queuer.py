@@ -4,7 +4,7 @@ from queuer import Queuer
 from random_startegy import RandomStrategy
 from uwb_tag import UWBTag
 from uwb_device import UWBDevice
-from multiprocessing import Event, Process, Queue
+from multiprocessing import Event, Process, Queue, Manager
 
 class TestQueuer(unittest.TestCase):
     def setUp(self) -> None:
@@ -12,7 +12,8 @@ class TestQueuer(unittest.TestCase):
         anchor_1 = UWBDevice(None, None, "AA")
         anchor_2 = UWBDevice(None, None, "BB")
         tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "DD", [anchor_1, anchor_2]), "192.168.0.113": UWBTag("192.168.0.113", 7, "EE", [anchor_1, anchor_2])}
-        self.queuer = Queuer(tags_dict, RandomStrategy())
+        self.dict_managed = Manager().dict(tags_dict)
+        self.queuer = Queuer(RandomStrategy())
 
     def check_queue_contents(self, queue):
         while not queue.empty():
@@ -23,7 +24,7 @@ class TestQueuer(unittest.TestCase):
             self.assertIsInstance(target_port, int)
 
     def test_encode_queue(self):
-        self.queuer.encode_queue()
+        self.queuer.encode_queue(self.dict_managed)
         queue_len = self.queuer.prepared_queue.qsize()
 
         self.assertGreater(queue_len, 0)
@@ -34,7 +35,7 @@ class TestQueuer(unittest.TestCase):
 
     def test_fill_queue(self):
         q = Queue()
-        self.queuer.encode_queue()
+        self.queuer.encode_queue(self.dict_managed)
 
         self.queuer.fill_queue(q)
         self.assertGreaterEqual(q.qsize(), 3)
@@ -54,7 +55,7 @@ class TestQueuer(unittest.TestCase):
         ended = Event()
         ended.clear()
 
-        p1 = Process(target=self.queuer.queing_process, args=(ended, q))
+        p1 = Process(target=self.queuer.queing_process, args=(ended, q, self.dict_managed))
         p1.start()
 
         time.sleep(.25)
@@ -83,7 +84,7 @@ class TestQueuer(unittest.TestCase):
             results_q.put(('192.168.0.113', f'Hello World{i}'.encode('utf-8'), ('192.168.0.113', 5001)))
         
         while not results_q.empty():
-            self.queuer.results_decode(results_q.get())
+            self.queuer.results_decode(results_q.get(), self.dict_managed)
 
         results_q.close()
 
@@ -131,7 +132,7 @@ class TestQueuer(unittest.TestCase):
             results_q.put(('127.0.0.1', f'Hello World{i}'.encode('utf-8'), ('127.0.0.1', 5001)))
         
         decoded_q = Queue()
-        self.queuer.results_decode(results_q, decoded_q)
+        self.queuer.results_decode(results_q, decoded_q, self.dict_managed)
 
         self.assertEqual(decoded_q.qsize(), 2)
 
