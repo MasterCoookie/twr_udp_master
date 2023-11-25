@@ -53,7 +53,7 @@ class Worker(QObject):
         # tags_list = {'AA': ('127.0.0.1', 5001, ['BB'])}
         settings = QSettings("JK", "Queuer")
         # self.queuer = Queuer(self.tags_dict, RandomStrategy())
-        self.queuer = Queuer(self.tags_dict, ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
+        self.queuer = Queuer(self.tags_dict, ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=5)
         self.udp_socket = UDPSocket(int(settings.value("out_port", "5000")), len(self.tags_dict), post_send_delay=int(settings.value("delay", "100"))/1000)
 
         self.queuer.tags_dict = self.queuer.generate_dict(self.tags_dict)
@@ -430,9 +430,7 @@ class MainWindow(QMainWindow):
         
         self.setWindowIcon(QtGui.QIcon('logo.png'))
 
-
         self.setup_ui()
-        
         self.show()
         
 
@@ -454,6 +452,8 @@ class MainWindow(QMainWindow):
 
 
         print(self.setup_widget.tags_dict)
+        if self.setup_widget.tags_dict == {}:
+            self.setup_widget.tags_dict = {'FF': ('127.0.0.1', 5001, [('AA', 3.0, 4.0, 5.0), ('BB', 2.0, 2.0, 2.0), ('CC', 3.0, 3.0, 3.0), ('DD', 0.0, 0.0, 1.0), ('EE', 0.0, 0.0, 0.5)])}
 
         self.worker = Worker(self.setup_widget.tags_dict)
         self.worker_thread = QThread()
