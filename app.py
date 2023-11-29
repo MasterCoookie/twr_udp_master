@@ -230,6 +230,8 @@ class SetupWidget(QWidget):
     def clear_devices(self):
         self.list_widget.clear()
         self.anchors_list.clear()
+        self.tags_dict.clear()
+
 
     def test_tag(self):
         test_socket = UDPSocket(5000, 1)
