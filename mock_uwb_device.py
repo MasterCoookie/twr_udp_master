@@ -14,7 +14,7 @@ distances_dict_a = {
     "BB": 5.91,
     "CC": 4.47,
     "DD": 8.6,
-    "EE": 4.12,
+    "EE": 8.86,
 }
 
 distances_dict_b = {
