@@ -26,7 +26,12 @@ def trilaterate_3d_4dists(distances):
 
     print("pre_sqrt", pre_sqrt)
     if pre_sqrt < 0:
-        pre_sqrt = np.abs(pre_sqrt)
+        if pre_sqrt > -0.0001:
+            pre_sqrt = 0
+        else:
+            print("no intersection")
+            return None
+        # pre_sqrt = np.abs(pre_sqrt)
 
     z1=np.sqrt(pre_sqrt)
     z2=np.sqrt(pre_sqrt)*(-1)

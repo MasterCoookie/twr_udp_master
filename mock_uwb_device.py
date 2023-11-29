@@ -18,11 +18,11 @@ distances_dict_a = {
 }
 
 distances_dict_b = {
-    "AA": 6.1,
-    "BB": 2.87,
-    "CC": 4.5,
-    "DD": 0.5,
-    "EE": 1,
+    "AA": 4.39,
+    "BB": 1.5,
+    "CC": 2.87,
+    "DD": 2.06,
+    "EE": 2.45,
 }
 
 def uwb_mock(num, ended, verbose=False):

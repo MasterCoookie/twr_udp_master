@@ -22,6 +22,12 @@ class ClosestStrategy(QueuingStrategy):
                 # print("trilateration_list ", trilateration_list)
                 tag_position = trilaterate_3d_4dists(trilateration_list)
 
+                if tag_position is None:
+                    tag.distances_available = 0
+                    for anchor in tag.available_devices:
+                        self.prepared_queue.put((anchor.uwb_address.encode(), tag.ip, tag.device_port))
+                    continue
+
                 print("tag_position ", tag_position)
 
                 i = 0
