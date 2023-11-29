@@ -45,7 +45,7 @@ class TestClosestStrategy(unittest.TestCase):
 
             message_decoded = message_encoded.decode('utf-8')
 
-            message_decoded = f'DIST {message_decoded}: {fake_restults[i]}m'
+            message_decoded = f'DIST FF to {message_decoded}: {fake_restults[i]}m'
 
             self.result_queue.put((ip, message_decoded.encode(), (ip, target_port)))
 

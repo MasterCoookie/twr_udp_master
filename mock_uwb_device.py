@@ -65,7 +65,7 @@ def uwb_mock(num, ended, verbose=False):
 
             time.sleep(randint(0, 50) / 1000)
 
-            receiver_socket.sendto(f'DIST {message_decoded}: {rand_distance_full}m'.encode(), address)
+            receiver_socket.sendto(f'DIST FF to {message_decoded}: {rand_distance_full}m'.encode(), address)
             count += 1
         except socket.timeout:
             if verbose:

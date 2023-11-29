@@ -51,13 +51,15 @@ class ClosestStrategy(QueuingStrategy):
 
         if message_decoded.startswith("ERR"):
             return (message_encoded[0], message_decoded)
+        
+        # print("split:", message_decoded.split(" ")[3])
 
-        uwb_addr = message_decoded.split(" ")[1].split(":")[0]
-        distance = float(message_decoded.split(" ")[2].split("m")[0])
+        anchor_uwb_addr = message_decoded.split(" ")[3].split(":")[0]
+        distance = float(message_decoded.split(" ")[4].split("m")[0])
 
         for tag in tags_dict.copy().values():
             for anchor in tag.available_devices:
-                if anchor.uwb_address == uwb_addr:
+                if anchor.uwb_address == anchor_uwb_addr:
                     anchor.distance = distance
                     if tag.distances_available < len(tag.available_devices):
                         tag.distances_available += 1

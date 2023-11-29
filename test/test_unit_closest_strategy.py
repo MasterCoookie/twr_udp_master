@@ -78,10 +78,10 @@ class TestClosestStrategy(unittest.TestCase):
         result_q = Queue()
         decoded_q = Queue()
 
-        result_q.put(('192.168.0.112', b'DIST AA: 4.12m', ('192.168.0.112', 7)))
-        result_q.put(('192.168.0.112', b'DIST BB: 5.91m', ('192.168.0.112', 7)))
-        result_q.put(('192.168.0.112', b'DIST CC: 4.47m', ('192.168.0.112', 7)))
-        result_q.put(('192.168.0.112', b'DIST DD: 8.6m', ('192.168.0.112', 7)))
+        result_q.put(('192.168.0.112', b'DIST FF to AA: 4.12m', ('192.168.0.112', 7)))
+        result_q.put(('192.168.0.112', b'DIST FF to BB: 5.91m', ('192.168.0.112', 7)))
+        result_q.put(('192.168.0.112', b'DIST FF to CC: 4.47m', ('192.168.0.112', 7)))
+        result_q.put(('192.168.0.112', b'DIST FF to DD: 8.6m', ('192.168.0.112', 7)))
 
         queuer.results_decode(result_q, decoded_q, dict_managed)
 
@@ -97,7 +97,7 @@ class TestClosestStrategy(unittest.TestCase):
     def test_queue_topping(self):
         print("Testing closest strategy queue topping")
         q = Queue()
-        tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "DD", [self.anchor_1, self.anchor_2, self.anchor_3, self.anchor_4, self.anchor_5])}
+        tags_dict = {"FF": UWBTag("192.168.0.112", 7, "FF", [self.anchor_1, self.anchor_2, self.anchor_3, self.anchor_4, self.anchor_5])}
         dict_managed = Manager().dict(tags_dict)
         queuer = Queuer(ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
 
