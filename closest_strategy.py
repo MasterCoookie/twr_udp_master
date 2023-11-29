@@ -67,7 +67,7 @@ class ClosestStrategy(QueuingStrategy):
             
             tag.available_devices.sort(key=lambda x: x.distance if x.distance is not None else 1000)
 
-            print('available_for given', tags_dict[tag.uwb_address])
+            # print('available_for given', tags_dict[tag.uwb_address])
             tags_dict[tag.uwb_address] = tag
 
         return (message_encoded[0], message_decoded)

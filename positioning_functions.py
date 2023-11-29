@@ -22,8 +22,14 @@ def trilaterate_3d_4dists(distances):
     x=((r1**2)-(r2**2)+(d**2))/(2*d)
     y=(((r1**2)-(r3**2)+(i**2)+(j**2))/(2*j))-((i/j)*(x))
 
-    z1=np.sqrt(r1**2-x**2-y**2)
-    z2=np.sqrt(r1**2-x**2-y**2)*(-1)
+    pre_sqrt=(r1**2-x**2-y**2)
+
+    print("pre_sqrt", pre_sqrt)
+    if pre_sqrt < 0:
+        pre_sqrt = np.abs(pre_sqrt)
+
+    z1=np.sqrt(pre_sqrt)
+    z2=np.sqrt(pre_sqrt)*(-1)
 
     ans1=p1+(x*e_x)+(y*e_y)+(z1*e_z)
     ans2=p1+(x*e_x)+(y*e_y)+(z2*e_z)
