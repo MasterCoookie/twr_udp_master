@@ -203,7 +203,7 @@ class SetupWidget(QWidget):
         tag_input_dialog = TagInputDialog([anchor[0] for anchor in self.anchors_list], self)
         if tag_input_dialog.exec():
             uwb_address, ip, port, anchors = tag_input_dialog.get_inputs()
-            self.list_widget.addItem(uwb_address)
+            self.list_widget.addItem(f'TAG: {uwb_address} - IP: {ip}:{port}')
             anchors = [anchor for anchor in self.anchors_list if anchor[0] in anchors]
             print(anchors)
             self.tags_dict[uwb_address] = (ip, port, anchors)
@@ -212,13 +212,20 @@ class SetupWidget(QWidget):
         anchor_input_dialog = AnchorInputDialog(self)
         if anchor_input_dialog.exec():
             result= anchor_input_dialog.get_inputs()
-            self.list_widget.addItem(result[0])
+            self.list_widget.addItem(f'ANCHOR: {result[0]}')
             self.anchors_list.append(result)
 
     def remove_device(self):
         if(self.list_widget.currentItem()):
-            self.anchors_list.remove(self.list_widget.currentItem().text())
-            self.list_widget.takeItem(self.list_widget.currentRow())
+            name = self.list_widget.currentItem().text()
+            if name.startswith("TAG"):
+                del self.tags_dict[name.split(" ")[1]]
+                self.list_widget.takeItem(self.list_widget.currentRow())
+            else:
+                if self.tags_dict == {}:
+                    print(self.tags_dict)
+                    self.anchors_list = [anchor for anchor in self.anchors_list if anchor[0] != name.split(" ")[1]]
+                    self.list_widget.takeItem(self.list_widget.currentRow())
 
     def clear_devices(self):
         self.list_widget.clear()
@@ -437,7 +444,7 @@ class MainWindow(QMainWindow):
 
     def setup_ui(self):
         self.setWindowTitle("JK Queuer - Setup")
-        self.setFixedSize(500, 175)
+        self.setFixedSize(400, 175)
         self.setup_widget = SetupWidget(self)
         
         self.setCentralWidget(self.setup_widget)
