@@ -10,6 +10,7 @@ class ClosestStrategy(QueuingStrategy):
 
     def prepare_queue(self, tags_dict):
         for tag in tags_dict.values():
+            print('Closest distances available', tag.distances_available)
             if tag.distances_available >= 4:
                 trilateration_list = []
                 available_copy = tag.available_devices.copy()
@@ -37,7 +38,7 @@ class ClosestStrategy(QueuingStrategy):
                     print("Putting:", tag.available_devices[i].uwb_address, tag.ip, tag.device_port)
                     self.prepared_queue.put((tag.available_devices[i].uwb_address.encode(), tag.ip, tag.device_port))
 
-                tag.distances_available = 0
+                # tag.distances_available = 0
             else:
                 for anchor in tag.available_devices:
                     self.prepared_queue.put((anchor.uwb_address.encode(), tag.ip, tag.device_port))
@@ -54,7 +55,7 @@ class ClosestStrategy(QueuingStrategy):
         uwb_addr = message_decoded.split(" ")[1].split(":")[0]
         distance = float(message_decoded.split(" ")[2].split("m")[0])
 
-        for tag in tags_dict.values():
+        for tag in tags_dict.copy().values():
             for anchor in tag.available_devices:
                 if anchor.uwb_address == uwb_addr:
                     anchor.distance = distance
@@ -64,5 +65,7 @@ class ClosestStrategy(QueuingStrategy):
             
             tag.available_devices.sort(key=lambda x: x.distance if x.distance is not None else 1000)
 
+            print('available_for given', tags_dict[tag.uwb_address])
+            tags_dict[tag.uwb_address] = tag
 
         return (message_encoded[0], message_decoded)

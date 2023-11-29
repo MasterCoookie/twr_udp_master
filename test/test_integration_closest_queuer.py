@@ -1,6 +1,6 @@
 import unittest
 
-from multiprocessing import Queue
+from multiprocessing import Queue, Manager
 
 from closest_strategy import ClosestStrategy
 from uwb_tag import UWBTag
@@ -24,11 +24,11 @@ class TestClosestStrategy(unittest.TestCase):
         return super().setUp()
     
     def test_closest_starting(self):
-        tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "FF", [self.anchor_1, self.anchor_2, self.anchor_3, self.anchor_4, self.anchor_5])}
+        tags_dict = {"FF": UWBTag("192.168.0.112", 7, "FF", [self.anchor_1, self.anchor_2, self.anchor_3, self.anchor_4, self.anchor_5])}
+        dict_managed = Manager().dict(tags_dict)
+        queuer = Queuer(ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=8)
 
-        queuer = Queuer(tags_dict, ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=8)
-
-        queuer.encode_queue()
+        queuer.encode_queue(dict_managed)
         queuer.fill_queue(self.prepared_queue)
 
         self.assertEqual(self.prepared_queue.qsize(), 8)
@@ -54,17 +54,17 @@ class TestClosestStrategy(unittest.TestCase):
                 i = 0
 
         while not self.result_queue.empty():
-            queuer.results_decode(self.result_queue, self.decode_queue)
+            queuer.results_decode(self.result_queue, self.decode_queue, dict_managed)
 
-        tag = tags_dict["192.168.0.112"]
+        tag = dict_managed["FF"]
 
-        self.assertEqual(tag.distances_available, 5)
+        self.assertEqual(tag.distances_available, 5, f'Actual: {tag.distances_available}')
         self.assertEqual(self.prepared_queue.qsize(), 0)
         self.assertEqual(queuer.prepared_queue.qsize(), 0)
 
         queuer.queue_upper_limit = 4
 
-        queuer.encode_queue()
+        queuer.encode_queue(dict_managed)
         queuer.fill_queue(self.prepared_queue)
 
         self.assertEqual(self.prepared_queue.qsize(), 4)

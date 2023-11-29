@@ -1,6 +1,6 @@
 import unittest
 
-from multiprocessing import Queue
+from multiprocessing import Queue, Manager
 
 from complete_random_strategy import CompleteRandomStrategy
 from uwb_tag import UWBTag
@@ -13,7 +13,8 @@ class TestCompleteRandomStrategy(unittest.TestCase):
         anchor_1 = UWBDevice(None, None, "AA")
         anchor_2 = UWBDevice(None, None, "BB")
         tags_dict = {"192.168.0.112": UWBTag("192.168.0.112", 7, "DD", [anchor_1, anchor_2]), "192.168.0.113": UWBTag("192.168.0.113", 7, "EE", [anchor_1, anchor_2])}
-        self.queuer = Queuer(tags_dict, CompleteRandomStrategy(), queue_lower_limit=4, queue_upper_limit=4)
+        self.tags_managed = Manager().dict(tags_dict)
+        self.queuer = Queuer(CompleteRandomStrategy(), queue_lower_limit=4, queue_upper_limit=4)
     
     def check_queue_contents(self, queue):
         messages = []
@@ -36,7 +37,7 @@ class TestCompleteRandomStrategy(unittest.TestCase):
     def test_prepare_queue(self):
         q = Queue()
 
-        self.queuer.encode_queue()
+        self.queuer.encode_queue(self.tags_managed)
         self.queuer.fill_queue(q)
         self.assertEqual(q.qsize(), 4)
         self.check_queue_contents(q)

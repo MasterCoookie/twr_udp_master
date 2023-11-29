@@ -8,7 +8,7 @@ from udp_socket import UDPSocket
 from random_startegy import RandomStrategy
 from closest_strategy import ClosestStrategy
 
-from multiprocessing import Queue, Process, Event
+from multiprocessing import Queue, Process, Event, Manager
 
 from PyQt6 import QtGui
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit, QFileDialog, QCheckBox, QFrame
@@ -52,18 +52,19 @@ class Worker(QObject):
     def do_work(self):
         # tags_list = {'AA': ('127.0.0.1', 5001, ['BB'])}
         settings = QSettings("JK", "Queuer")
-        # self.queuer = Queuer(self.tags_dict, RandomStrategy())
-        self.queuer = Queuer(self.tags_dict, ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=5)
+        # self.queuer = Queuer(RandomStrategy())
+        self.queuer = Queuer(ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
         self.udp_socket = UDPSocket(int(settings.value("out_port", "5000")), len(self.tags_dict), post_send_delay=int(settings.value("delay", "100"))/1000)
 
-        self.queuer.tags_dict = self.queuer.generate_dict(self.tags_dict)
+        generated_dict = self.queuer.generate_dict(self.tags_dict)
+        managed_dict = Manager().dict(generated_dict)
 
         file_handler = logging.FileHandler(f'{settings.value("log_dir", "./")}/results.log')
         file_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
         logging.getLogger().addHandler(file_handler)
 
 
-        p1 = Process(target=self.queuer.queing_process, args=(ended, self.msg_q))
+        p1 = Process(target=self.queuer.queing_process, args=(ended, self.msg_q, managed_dict))
         p2 = Process(target=self.udp_socket.sending_process, args=(ended, self.msg_q, self.result_q))
 
         p1.start()
@@ -74,7 +75,7 @@ class Worker(QObject):
         while not ended.is_set():
             # logging.warning('DUPA')
             time.sleep(.01)
-            self.queuer.results_decode(self.result_q, self.decoded_q)
+            self.queuer.results_decode(self.result_q, self.decoded_q, managed_dict)
             while not self.decoded_q.empty():
                 result = self.decoded_q.get()
                 self.total_signal.emit()

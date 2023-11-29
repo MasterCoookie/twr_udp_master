@@ -9,7 +9,7 @@ from random import randint
 
 moving = False
 
-distances_dict = {
+distances_dict_a = {
     "AA": 4.12,
     "BB": 5.91,
     "CC": 4.47,
@@ -17,12 +17,29 @@ distances_dict = {
     "EE": 4.12,
 }
 
+distances_dict_b = {
+    "AA": 6.1,
+    "BB": 2.87,
+    "CC": 4.5,
+    "DD": 0.5,
+    "EE": 1,
+}
+
 def uwb_mock(num, ended, verbose=False):
     receiver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     receiver_socket.bind((f'127.0.0.{num}', 5000 + num))
     receiver_socket.settimeout(.5)
+    distances_dict = distances_dict_a
 
+    count = 0
     while not ended.is_set():
+        if moving and count == 12:
+            print("Switching to position b")
+            distances_dict = distances_dict_b
+        elif moving and count == 24:
+            print("Switching to position a")
+            distances_dict = distances_dict_a
+            count = 0
         try:
             message_received, address = receiver_socket.recvfrom(1024)
             message_decoded = message_received.decode('utf-8')
@@ -49,6 +66,7 @@ def uwb_mock(num, ended, verbose=False):
             time.sleep(randint(0, 50) / 1000)
 
             receiver_socket.sendto(f'DIST {message_decoded}: {rand_distance_full}m'.encode(), address)
+            count += 1
         except socket.timeout:
             if verbose:
                 print(f"Mock 127.0.0.{num}: Receiver socket timeout!")
