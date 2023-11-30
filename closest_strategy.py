@@ -19,13 +19,17 @@ class ClosestStrategy(QueuingStrategy):
                     if anchor.distance is not None:
                         trilateration_list.append(anchor.position)
 
-                # print("trilateration_list ", trilateration_list)
+                print("trilateration_list ", trilateration_list)
                 tag_position = trilaterate_3d_4dists(trilateration_list)
 
                 if tag_position is None:
                     tag.distances_available = 0
                     for anchor in tag.available_devices:
-                        self.prepared_queue.put((anchor.uwb_address.encode(), tag.ip, tag.device_port))
+                        anchor.distance = None
+                    tags_dict[tag.uwb_address] = tag
+                    print("is none")
+                    # for anchor in tag.available_devices:
+                    #     self.prepared_queue.put((anchor.uwb_address.encode(), tag.ip, tag.device_port))
                     continue
 
                 print("tag_position ", tag_position)
@@ -46,7 +50,9 @@ class ClosestStrategy(QueuingStrategy):
 
                 # tag.distances_available = 0
             else:
+                print("Scanning")
                 for anchor in tag.available_devices:
+                    anchor.distance = None
                     self.prepared_queue.put((anchor.uwb_address.encode(), tag.ip, tag.device_port))
 
     def decode_message(self, message_encoded, tags_dict):
@@ -68,6 +74,7 @@ class ClosestStrategy(QueuingStrategy):
                 if anchor.uwb_address == anchor_uwb_addr:
                     anchor.distance = distance
                     if tag.distances_available < len(tag.available_devices):
+                        print("Incrementing")
                         tag.distances_available += 1
                     break
             

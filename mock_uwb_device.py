@@ -10,20 +10,22 @@ from random import randint
 moving = False
 
 distances_dict_a = {
-    "AA": 4.12,
-    "BB": 5.91,
-    "CC": 4.47,
-    "DD": 8.6,
-    "EE": 4.12,
+    "AA": 4.12, #3, 4, 5
+    "BB": 5.91, #2, 2, 2
+    "CC": 4.47, #3, 3, 3
+    "DD": 8.6, #0, 0, 1
+    "EE": 8.86, #0, 0, .5
 }
 
 distances_dict_b = {
-    "AA": 4.39,
-    "BB": 1.5,
-    "CC": 2.87,
-    "DD": 2.06,
-    "EE": 2.45,
+    "AA": 4.74, #3, 4, 5
+    "BB": 1.87, #2, 2, 2
+    "CC": 3.24, #3, 3, 3
+    "DD": 1.87, #0, 0, 1
+    "EE": 2.29, #0, 0, .5
 }
+
+SWITCH = 24
 
 def uwb_mock(num, ended, verbose=False):
     receiver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -33,10 +35,10 @@ def uwb_mock(num, ended, verbose=False):
 
     count = 0
     while not ended.is_set():
-        if moving and count == 12:
+        if moving and count == SWITCH:
             print("Switching to position b")
             distances_dict = distances_dict_b
-        elif moving and count == 24:
+        elif moving and count == SWITCH * 2:
             print("Switching to position a")
             distances_dict = distances_dict_a
             count = 0

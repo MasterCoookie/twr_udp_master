@@ -15,9 +15,36 @@ class TestTrilaterate(unittest.TestCase):
 
         result = trilaterate_3d_4dists([anchor_1, anchor_2, anchor_3, anchor_4])
         print(result)
+        self.assertIsNotNone(result)
         self.assertAlmostEqual(result[0], 7, delta=0.05)
         self.assertAlmostEqual(result[1], 3, delta=0.05)
         self.assertAlmostEqual(result[2], 5, delta=0.05)
+    
+    def test_trilaterate_3d_4dists_random_2(self):
+        anchor_1 = [2, 2, 2, 1.87]
+        anchor_2 = [0, 0, 1, 1.87]
+        anchor_3 = [3, 3, 3, 3.24]
+        anchor_4 = [3, 4, 5, 4.74]
+
+        result = trilaterate_3d_4dists([anchor_1, anchor_2, anchor_3, anchor_4])
+        print(result)
+        self.assertIsNotNone(result)
+        self.assertAlmostEqual(result[0], 1, delta=0.05)
+        self.assertAlmostEqual(result[1], .5, delta=0.05)
+        self.assertAlmostEqual(result[2], 2.5, delta=0.05)
+
+    def test_trilaterate_3d_4dists_random_3(self):
+        anchor_1 = [2, 2, 2, 1.87]
+        anchor_2 = [0, 0, 1, 1.87]
+        anchor_3 = [3, 3, 3, 3.24]
+        anchor_4 = [0, 0, .5, 3.24]
+
+        result = trilaterate_3d_4dists([anchor_1, anchor_2, anchor_3, anchor_4])
+        print(result)
+        self.assertIsNotNone(result)
+        self.assertAlmostEqual(result[0], 1, delta=0.05)
+        self.assertAlmostEqual(result[1], .5, delta=0.05)
+        self.assertAlmostEqual(result[2], 2.5, delta=0.05)
 
     def test_trilaterate_3d_4dists_zeros(self):
         anchor_1 = [1, 0, 0, 1.41]
