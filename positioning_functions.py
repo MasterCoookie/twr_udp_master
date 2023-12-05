@@ -46,3 +46,38 @@ def trilaterate_3d_4dists(distances):
         return ans1
     else: 
         return ans2
+    
+def polyfit_3d(points):
+    x = []
+    y = []
+    z = []
+    timestamps = []
+    for point in points:
+        x.append(point[0])
+        y.append(point[1])
+        z.append(point[2])
+        timestamps.append(point[3])
+
+    diff = 0
+
+    for timestamp in timestamps:
+        diff += timestamp - timestamps[0]
+
+    mean_step = diff / len(timestamps)    
+    
+    x = np.array(x)
+    y = np.array(y)
+    z = np.array(z)
+    timestamps = np.array(timestamps)
+
+    x_fit = np.polyfit(timestamps, x, 2)
+    y_fit = np.polyfit(timestamps, y, 2)
+    z_fit = np.polyfit(timestamps, z, 2)
+
+    new_timestamp = timestamps[-1] + mean_step
+
+    x_new = np.polyval(x_fit, new_timestamp)
+    y_new = np.polyval(y_fit, new_timestamp)
+    z_new = np.polyval(z_fit, new_timestamp)
+
+    return [x_new, y_new, z_new]

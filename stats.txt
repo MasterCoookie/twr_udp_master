@@ -1,9 +1,9 @@
-Successes: 0
+Successes: 256
 Timeouts: 0
 Errors: 0
-Total: 0
-Success rate: 0%
-Error rate: 0%
-Timeout rate: 0%
-Log file size: 10.6kB
-Operation time: 00:00:00s
+Total: 256
+Success rate: 100.0%
+Error rate: 0.0%
+Timeout rate: 0.0%
+Log file size: 293.33kB
+Operation time: 00:02:18s
