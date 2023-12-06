@@ -118,7 +118,7 @@ if __name__ == "__main__":
         threads.append(Thread(target=uwb_mock, args=(i + 1, ended, True)))
         threads[-1].start()
 
-    input("Starting... Mash enter to end...\n")
+    input("Starting... Press any button to end...\n")
     
     time.sleep(1)
 

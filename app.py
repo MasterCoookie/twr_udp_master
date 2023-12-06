@@ -234,8 +234,10 @@ class SetupWidget(QWidget):
 
 
     def test_tag(self):
+        if self.list_widget.currentItem() is None or not self.list_widget.currentItem().text().startswith("TAG"):
+            return
         test_socket = UDPSocket(5000, 1)
-        tag_uwb_address = self.list_widget.currentItem().text()
+        tag_uwb_address = self.list_widget.currentItem().text().split(" ")[1]
         tag = self.tags_dict[tag_uwb_address]
         test_socket.send(b"TEST", tag[0], int(tag[1]))
         result = test_socket.receive(verbose=True)
