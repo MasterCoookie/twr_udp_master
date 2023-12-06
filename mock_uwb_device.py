@@ -7,7 +7,7 @@ from helper_functions import *
 from threading import Thread, Event
 from random import randint
 
-moving = False
+moving = 0
 
 distances_dict_a = {
     "AA": 4.12, #3, 4, 5
@@ -46,14 +46,21 @@ def uwb_mock(num, ended, verbose=False):
     distances_dict = distances_dict_a
 
     count = 0
+    index = 0
     while not ended.is_set():
-        if moving and count == SWITCH:
+        if moving == 1 and count == SWITCH:
             print("Switching to position b")
             distances_dict = distances_dict_b
-        elif moving and count == SWITCH * 2:
+        elif moving == 1 and count == SWITCH * 2:
             print("Switching to position a")
             distances_dict = distances_dict_a
             count = 0
+        elif moving == 2:
+            if count > 4:
+                index += 1
+                count = 0
+            if index >= len(distances_array):
+                index = 0
         try:
             message_received, address = receiver_socket.recvfrom(1024)
             message_decoded = message_received.decode('utf-8')
@@ -70,16 +77,22 @@ def uwb_mock(num, ended, verbose=False):
                 if random_result < 3:
                     continue
 
-            if moving:
+            if moving == 1:
                 rand_distance_full = distances_dict[message_decoded]
+            elif moving == 2:
+                print("index", index)
+                rand_distance_full = distances_array[index][message_decoded]
             else:
                 rand_distance_1 = randint(0, 100)
                 rand_distance_2 = randint(0, 100)
-                rand_distance_full = str(rand_distance_1) + "." + str(rand_distance_2) + "m\n"
+                rand_distance_full = str(rand_distance_1) + "." + str(rand_distance_2)
 
             time.sleep(randint(0, 50) / 1000)
 
-            receiver_socket.sendto(f'DIST FF to {message_decoded}: {rand_distance_full}m'.encode(), address)
+            msg = f'DIST FF to {message_decoded}: {rand_distance_full}m'
+            print(msg)
+
+            receiver_socket.sendto(msg.encode(), address)
             count += 1
         except socket.timeout:
             if verbose:
@@ -89,10 +102,13 @@ def uwb_mock(num, ended, verbose=False):
 
 if __name__ == "__main__":
     count = int(sys.argv[1])
-    moving = bool(sys.argv[2] if len(sys.argv) > 2 else False)
+    moving = int(sys.argv[2] if len(sys.argv) > 2 else 0)
 
-    if moving:
-        print("Moving anchors")
+    if moving == 1:
+        print("Repositioning tag")
+
+    if moving == 2:
+        print("Moving tag")
 
     ended = Event()
     ended.clear()
