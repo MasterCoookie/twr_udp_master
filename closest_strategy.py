@@ -55,7 +55,6 @@ class ClosestStrategy(QueuingStrategy):
 
                     while len(self.points_dict[tag.uwb_address]) > 99:
                         self.points_dict[tag.uwb_address] = self.points_dict[tag.uwb_address][:99]
-                    
 
 
                 i = 0
