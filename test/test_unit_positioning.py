@@ -59,9 +59,9 @@ class TestTrilaterate(unittest.TestCase):
         self.assertAlmostEqual(result[2], 1, delta=0.05)
 
     def test_polynomial_regression(self):
-        point_1 = [0, 0, 0, 0]
-        point_2 = [1, 1, 1, 100]
-        point_3 = [2, 2, 2, 200]
+        point_1 = [0, 0, 0, 50]
+        point_2 = [1, 1, 1, 150]
+        point_3 = [2, 2, 2, 250]
 
         result = polyfit_3d([point_1, point_2, point_3])
         print(result)

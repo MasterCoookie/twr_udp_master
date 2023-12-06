@@ -1,12 +1,21 @@
+import time
+
 import numpy as np
 
 from queuing_stategy import QueuingStrategy
 
-from positioning_functions import trilaterate_3d_4dists
+from positioning_functions import trilaterate_3d_4dists, polyfit_3d
 
 class ClosestStrategy(QueuingStrategy):
-    def __init__(self):
+    def __init__(self, regression_treshold=0):
         super().__init__()
+        self.regression_treshold = regression_treshold
+        if regression_treshold:
+            self.points_dict = {}
+            self.start_time = time.time()
+
+    def get_passed_time(self):
+        return time.time() - self.start_time
 
     def prepare_queue(self, tags_dict):
         for tag in tags_dict.values():
@@ -33,6 +42,21 @@ class ClosestStrategy(QueuingStrategy):
                     continue
 
                 print("tag_position ", tag_position)
+
+                if self.regression_treshold:
+                    tag_position.append(self.get_passed_time())
+                    if tag.uwb_address in self.points_dict:
+                        self.points_dict[tag.uwb_address].insert(tag_position, 0)
+                    else:
+                        self.points_dict[tag.uwb_address] = [tag_position]
+
+                    if len(self.points_dict[tag.uwb_address]) > self.regression_treshold:
+                        tag_position = polyfit_3d(self.points_dict[tag.uwb_address][0:self.regression_treshold])
+
+                    while len(self.points_dict[tag.uwb_address]) > 99:
+                        self.points_dict[tag.uwb_address] = self.points_dict[tag.uwb_address][:99]
+                    
+
 
                 i = 0
                 while i < len(tag.available_devices):
