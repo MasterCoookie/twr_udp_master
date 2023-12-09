@@ -50,7 +50,6 @@ class UDPSocket:
                 print(f"Socket error: {error}")
             return None, None
 
-    #TODO - rename
     def sending_process(self, ended, msg_queue, received_queue, verbose=False):
         '''
         Sends messages from the queue in an infinite loop.
@@ -75,5 +74,31 @@ class UDPSocket:
                     print(f"Received response: {response_encoded.decode()} from {response_address}")
 
                 received_queue.put((ip, response_encoded, response_address))
+
+                time.sleep(self.post_send_delay)
+
+    def sending_simultaneous_process(self, ended, count, offset, msg_queue, received_queue, verbose=False):
+        self.bound_socket.settimeout(self.timeout)
+
+        while not ended.is_set():
+            if msg_queue.qsize() < count:
+                time.sleep(.1)
+                if verbose:
+                    print("Queue empty!")
+                received_queue.put((ip, None, None))
+                continue
+            else:
+                for _ in range(count):
+                    message_encoded, ip, target_port = msg_queue.get()
+                    self.send(message_encoded, ip, target_port)
+                    time.sleep(offset)
+
+                for _ in range(count):
+                    response_encoded, response_address = self.receive()
+
+                    if verbose:
+                        print(f"Received response: {response_encoded.decode()} from {response_address}")
+
+                    received_queue.put((ip, response_encoded, response_address))
 
                 time.sleep(self.post_send_delay)

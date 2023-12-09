@@ -85,6 +85,44 @@ class TestUDPSocket(unittest.TestCase):
         self.assertEqual(q_element[1], b'Im responding!')
         self.assertEqual(q_element[2], (self.ip, self.port + 1))
 
+    def test_sending_simultaneous_process(self):
+        udp_socket = UDPSocket(self.port, self.devices_count, timeout=.5, post_send_delay=1)
+        msg_queue = Queue()
+        res_queue = Queue()
+
+        count = 3
+        offset = .005
+
+        msg_queue.put((b'Hello World!', self.ip, self.port + 1))
+        msg_queue.put((b'Hello World2', self.ip, self.port + 1))
+        msg_queue.put((b'Hello World2', self.ip, self.port + 1))
+
+        ended = Event()
+        ended.clear()
+
+        p1 = Process(target=receiver_process, args=(ended, False))
+        p2 = Process(target=udp_socket.sending_simultaneous_process, args=(ended, count, offset, msg_queue, res_queue, True))
+
+        p1.start()
+        p2.start()
+
+        time.sleep(.2)
+
+        ended.set()
+
+        p1.join()
+        p2.join()
+        udp_socket.bound_socket.close()
+
+        # self.assertEqual(res_queue.qsize(), 3)
+        while not res_queue.empty():
+            q_element = res_queue.get()
+            print('test_sending_simultaneous_process result', q_element[1])
+            self.assertEqual(q_element[0], '127.0.0.1')
+            self.assertEqual(q_element[1], b'Im responding!')
+            self.assertEqual(q_element[2], (self.ip, self.port + 1))
+
+
     def tearDown(self):
         print("Finished testing UDP Socket")
 
