@@ -17,10 +17,16 @@ class CompleteSimultaneusRandomStrategy(QueuingStrategy):
             tags_queues.append(available_copy)
             total_count += len(available_copy)
 
-        for index, tag in enumerate(tags_dict.values()):
-            for _ in range(len(tags_queues[index])):
-                anchor = tags_queues[index].popleft()
-                self.prepared_queue.put((anchor.uwb_address.encode(), tag.ip, tag.device_port))
+        tags_list = list(tags_dict.values())
+
+        while total_count > 0:
+            i = 0
+            while i < len(tags_queues):
+                if len(tags_queues[i]) > 0:
+                    anchor = tags_queues[i].popleft()
+                    self.prepared_queue.put((anchor.uwb_address.encode(), tags_list[i].ip, tags_list[i].device_port))
+                    total_count -= 1
+                i += 1
             
             
 
