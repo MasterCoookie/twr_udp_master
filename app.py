@@ -7,6 +7,7 @@ from queuer import Queuer
 from udp_socket import UDPSocket
 from random_startegy import RandomStrategy
 from closest_strategy import ClosestStrategy
+from complete_simultaneus_random_strategy import CompleteSimultaneusRandomStrategy
 
 from multiprocessing import Queue, Process, Event, Manager
 
@@ -53,7 +54,8 @@ class Worker(QObject):
         # tags_list = {'AA': ('127.0.0.1', 5001, ['BB'])}
         settings = QSettings("JK", "Queuer")
         # self.queuer = Queuer(RandomStrategy())
-        self.queuer = Queuer(ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
+        # self.queuer = Queuer(ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
+        self.queuer = Queuer(CompleteSimultaneusRandomStrategy(), queue_lower_limit=6, queue_upper_limit=6)
         self.udp_socket = UDPSocket(int(settings.value("out_port", "5000")), len(self.tags_dict), post_send_delay=int(settings.value("delay", "100"))/1000)
 
         generated_dict = self.queuer.generate_dict(self.tags_dict)
@@ -65,7 +67,8 @@ class Worker(QObject):
 
 
         p1 = Process(target=self.queuer.queing_process, args=(ended, self.msg_q, managed_dict))
-        p2 = Process(target=self.udp_socket.sending_process, args=(ended, self.msg_q, self.result_q))
+        # p2 = Process(target=self.udp_socket.sending_process, args=(ended, self.msg_q, self.result_q))
+        p2 = Process(target=self.udp_socket.sending_simultaneous_process, args=(ended, 2, 0.1, self.msg_q, self.result_q, True))
 
         p1.start()
         # time to prepare first queue

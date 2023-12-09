@@ -97,7 +97,7 @@ class UDPSocket:
                     response_encoded, response_address = self.receive()
 
                     if verbose:
-                        print(f"Received response: {response_encoded.decode()} from {response_address}")
+                        print(f"Received response: {response_encoded.decode() if response_encoded is not None else 'None'} from {response_address if response_address is not None else 'None'}")
 
                     received_queue.put((ip, response_encoded, response_address))
 

@@ -9,6 +9,8 @@ from random import randint
 
 moving = 0
 
+tag_addresses = ['FF', 'GG', 'HH', 'II', 'JJ', 'KK', 'LL', 'MM', 'NN', 'OO', 'PP']
+
 distances_dict_a = {
     "AA": 4.12, #3, 4, 5
     "BB": 5.91, #2, 2, 2
@@ -39,7 +41,7 @@ distances_array = [
 
 SWITCH = 24
 
-def uwb_mock(num, ended, verbose=False):
+def uwb_mock(num, ended, verbose=False, tag_address=None):
     receiver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     receiver_socket.bind((f'127.0.0.{num}', 5000 + num))
     receiver_socket.settimeout(.5)
@@ -89,14 +91,14 @@ def uwb_mock(num, ended, verbose=False):
 
             time.sleep(randint(0, 50) / 1000)
 
-            msg = f'DIST FF to {message_decoded}: {rand_distance_full}m'
+            msg = f'DIST {tag_address} to {message_decoded}: {rand_distance_full}m'
             print(msg)
 
             receiver_socket.sendto(msg.encode(), address)
             count += 1
         except socket.timeout:
             if verbose:
-                print(f"Mock 127.0.0.{num}: Receiver socket timeout!")
+                print(f"Mock 127.0.0.{num}:{5000+num} Receiver socket timeout!")
 
     receiver_socket.close()
 
@@ -115,7 +117,7 @@ if __name__ == "__main__":
 
     threads = []
     for i in range(count):
-        threads.append(Thread(target=uwb_mock, args=(i + 1, ended, True)))
+        threads.append(Thread(target=uwb_mock, args=(i + 1, ended, True, tag_addresses[i],)))
         threads[-1].start()
 
     input("Starting... Press any button to end...\n")

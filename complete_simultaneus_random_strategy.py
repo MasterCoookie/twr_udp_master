@@ -29,4 +29,6 @@ class CompleteSimultaneusRandomStrategy(QueuingStrategy):
         if msg is None:
             return (message_encoded[0], None)
         message_decoded = message_encoded[1].decode('utf-8')
+        if message_decoded.startswith("ERR"):
+            return (message_encoded[0], message_decoded)
         return (message_encoded[0], message_decoded)
