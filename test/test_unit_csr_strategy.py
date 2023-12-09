@@ -55,4 +55,8 @@ class TestCompleteSimultaneusRandomStrategy(unittest.TestCase):
         self.assertEqual(tag_messages["EE"].count("CC"), 1)
         self.assertEqual(tag_messages["EE"].count("FF"), 1)
 
-        
+        for i in range(4):
+            self.assertNotEqual(tag_messages["DD"][i], tag_messages["EE"][i])
+
+if __name__ == '__main__':
+    unittest.main()
