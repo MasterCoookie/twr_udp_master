@@ -291,7 +291,7 @@ class EndWidget(QWidget):
 
         settings = QSettings("JK", "Queuer")
 
-        self.log_file_size = os.path.getsize(settings.value("log_dir", "./") + "results.log") / 1024
+        self.log_file_size = os.path.getsize(settings.value("log_dir", "./") + "/results.log") / 1024
         self.log_file_size = round(self.log_file_size, 2)
 
     def dump_stats(self):
