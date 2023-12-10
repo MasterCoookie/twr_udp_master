@@ -17,3 +17,6 @@ class UWBDevice:
     @property
     def position(self):
         return (self.x_pos, self.y_pos, self.z_pos, self.distance)
+    
+    def __str__(self):
+        return f"Device {self.uwb_address} at {self.ip}:{self.device_port}"
