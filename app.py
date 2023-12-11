@@ -108,13 +108,25 @@ class SettingsDialog(QDialog):
 
         self.settings = QSettings("JK", "Queuer")
 
+        general_label = QLabel("General", self)
+        general_label.setFont(QtGui.QFont("Arial", 11, QtGui.QFont.Weight.Bold))
+
         self.out_port_input = QLineEdit(self)
         self.out_port_input.setText(self.settings.value("out_port", "5000"))
 
         self.delay_input = QLineEdit(self)
         self.delay_input.setText(self.settings.value("delay", "100"))
 
+        self.enable_log_save_label = QLabel("Log directory", self)
+
+        self.log_save_dir_input = QLineEdit(self)
+        self.log_save_dir_input.setText(self.settings.value("log_dir", "./"))
+
+        self.log_dir_button = QPushButton("Choose directory", self)
+        self.log_dir_button.clicked.connect(self.choose_log_dir)
+
         strategy_label = QLabel("Strategy", self)
+        strategy_label.setFont(QtGui.QFont("Arial", 11, QtGui.QFont.Weight.Bold))
 
         strategy_list = self.get_saved_strategy_list()
 
@@ -136,18 +148,13 @@ class SettingsDialog(QDialog):
         self.regression_treshold_input = QLineEdit(self)
         self.regression_treshold_input.setText(self.settings.value("regression_treshold", "3"))
 
-        self.enable_log_save_label = QLabel("Log directory", self)
-
-        self.log_save_dir_input = QLineEdit(self)
-        self.log_save_dir_input.setText(self.settings.value("log_dir", "./"))
-
-        self.log_dir_button = QPushButton("Choose directory", self)
-        self.log_dir_button.clicked.connect(self.choose_log_dir)
-
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
 
+        layout.addRow(general_label)
         layout.addRow("Out Port:", self.out_port_input)
         layout.addRow("Delay (ms):", self.delay_input)
+        layout.addRow(self.enable_log_save_label)
+        layout.addRow(self.log_save_dir_input, self.log_dir_button)
         layout.addRow(strategy_label)
         layout.addRow(self.complete_random_radio)
         layout.addRow(self.simultaneus_random_radio)
@@ -155,8 +162,6 @@ class SettingsDialog(QDialog):
         layout.addRow(self.closest_radio)
         layout.addRow(self.position_prediction_radio)
         layout.addRow("Regression treshold:", self.regression_treshold_input)
-        layout.addRow(self.enable_log_save_label)
-        layout.addRow(self.log_save_dir_input, self.log_dir_button)
         layout.addWidget(button_box)
 
 
