@@ -51,7 +51,6 @@ class Worker(QObject):
     total_signal = Signal()
 
     def do_work(self):
-        # tags_list = {'AA': ('127.0.0.1', 5001, ['BB'])}\
         settings = QSettings("JK", "Queuer")
         strategy_list = SettingsDialog.get_saved_strategy_list()
         print(strategy_list)
@@ -89,7 +88,6 @@ class Worker(QObject):
         p2.start()
 
         while not ended.is_set():
-            # logging.warning('DUPA')
             time.sleep(.01)
             self.queuer.results_decode(self.result_q, self.decoded_q, managed_dict)
             while not self.decoded_q.empty():
