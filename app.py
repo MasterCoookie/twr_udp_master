@@ -51,11 +51,21 @@ class Worker(QObject):
     total_signal = Signal()
 
     def do_work(self):
-        # tags_list = {'AA': ('127.0.0.1', 5001, ['BB'])}
+        # tags_list = {'AA': ('127.0.0.1', 5001, ['BB'])}\
         settings = QSettings("JK", "Queuer")
+        strategy_list = SettingsDialog.get_saved_strategy_list()
+        print(strategy_list)
+        if strategy_list[0]:
+            self.queuer = Queuer(RandomStrategy(), queue_lower_limit=4, queue_upper_limit=4)
+        elif strategy_list[1]:
+            self.queuer = Queuer(CompleteSimultaneusRandomStrategy(), queue_lower_limit=6, queue_upper_limit=6)
+        elif strategy_list[2]:
+            self.queuer = Queuer(ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
+        elif strategy_list[3]:
+            self.queuer = Queuer(ClosestStrategy(regression_treshold=int(settings.value("regression_treshold", "3"))), queue_lower_limit=4, queue_upper_limit=4)
         # self.queuer = Queuer(RandomStrategy())
         # self.queuer = Queuer(ClosestStrategy(), queue_lower_limit=4, queue_upper_limit=4)
-        self.queuer = Queuer(CompleteSimultaneusRandomStrategy(), queue_lower_limit=6, queue_upper_limit=6)
+        # self.queuer = Queuer(CompleteSimultaneusRandomStrategy(), queue_lower_limit=6, queue_upper_limit=6)
         self.udp_socket = UDPSocket(int(settings.value("out_port", "5000")), len(self.tags_dict), post_send_delay=int(settings.value("delay", "100"))/1000)
 
         generated_dict = self.queuer.generate_dict(self.tags_dict)
@@ -67,8 +77,11 @@ class Worker(QObject):
 
 
         p1 = Process(target=self.queuer.queing_process, args=(ended, self.msg_q, managed_dict))
-        # p2 = Process(target=self.udp_socket.sending_process, args=(ended, self.msg_q, self.result_q))
-        p2 = Process(target=self.udp_socket.sending_simultaneous_process, args=(ended, 2, 0.1, self.msg_q, self.result_q, True))
+        if strategy_list[1]:
+            simultaneous_delay = int(settings.value("simultaneus_delay", "1000"))/1000000
+            p2 = Process(target=self.udp_socket.sending_simultaneous_process, args=(ended, len(generated_dict), simultaneous_delay, self.msg_q, self.result_q, True))
+        else:
+            p2 = Process(target=self.udp_socket.sending_process, args=(ended, self.msg_q, self.result_q))
 
         p1.start()
         # time to prepare first queue
@@ -168,12 +181,14 @@ class SettingsDialog(QDialog):
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
 
-    def get_saved_strategy_list(self):
+    @staticmethod
+    def get_saved_strategy_list():
+        settings = QSettings("JK", "Queuer")
         strategy_list = [
-            self.settings.value("complete_random", False),
-            self.settings.value("simultaneus_random", False),
-            self.settings.value("closest", False),
-            self.settings.value("position_prediction", False)
+            settings.value("complete_random", False),
+            settings.value("simultaneus_random", False),
+            settings.value("closest", False),
+            settings.value("position_prediction", False)
         ]
 
         return [True if item == "true" else False for item in strategy_list]
