@@ -116,15 +116,25 @@ class SettingsDialog(QDialog):
 
         strategy_label = QLabel("Strategy", self)
 
+        strategy_list = self.get_saved_strategy_list()
+
         self.complete_random_radio = QRadioButton("Complete random", self)
+        self.complete_random_radio.setChecked(strategy_list[0])
+        if self.settings.value("strategy_picked", "0") == "0":
+            self.complete_random_radio.setChecked(True)
         
         self.simultaneus_random_radio = QRadioButton("Simultaneus random", self)
+        self.simultaneus_random_radio.setChecked(strategy_list[1])
         self.simultaneus_delay_input = QLineEdit(self)
+        self.simultaneus_delay_input.setText(self.settings.value("simultaneus_delay", "1000"))
 
         self.closest_radio = QRadioButton("Closest", self)
+        self.closest_radio.setChecked(strategy_list[2])
 
         self.position_prediction_radio = QRadioButton("Position prediction", self)
+        self.position_prediction_radio.setChecked(strategy_list[3])
         self.regression_treshold_input = QLineEdit(self)
+        self.regression_treshold_input.setText(self.settings.value("regression_treshold", "3"))
 
         self.enable_log_save_label = QLabel("Log directory", self)
 
@@ -141,7 +151,7 @@ class SettingsDialog(QDialog):
         layout.addRow(strategy_label)
         layout.addRow(self.complete_random_radio)
         layout.addRow(self.simultaneus_random_radio)
-        layout.addRow("Delay (ns):", self.simultaneus_delay_input)
+        layout.addRow("Delay (µs):", self.simultaneus_delay_input)
         layout.addRow(self.closest_radio)
         layout.addRow(self.position_prediction_radio)
         layout.addRow("Regression treshold:", self.regression_treshold_input)
@@ -153,10 +163,30 @@ class SettingsDialog(QDialog):
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
 
+    def get_saved_strategy_list(self):
+        strategy_list = [
+            self.settings.value("complete_random", False),
+            self.settings.value("simultaneus_random", False),
+            self.settings.value("closest", False),
+            self.settings.value("position_prediction", False)
+        ]
+
+        return [True if item == "true" else False for item in strategy_list]
+
     def accept(self):
         self.settings.setValue("out_port", self.out_port_input.text())
         self.settings.setValue("delay", self.delay_input.text())
         self.settings.setValue("log_dir", self.log_save_dir_input.text())
+
+        self.settings.setValue("complete_random", self.complete_random_radio.isChecked())
+        self.settings.setValue("simultaneus_random", self.simultaneus_random_radio.isChecked())
+        self.settings.setValue("closest", self.closest_radio.isChecked())
+        self.settings.setValue("position_prediction", self.position_prediction_radio.isChecked())
+
+        self.settings.setValue("strategy_picked", "1")
+
+        self.settings.setValue("simultaneus_delay", self.simultaneus_delay_input.text())
+        self.settings.setValue("regression_treshold", self.regression_treshold_input.text())
         super().accept()
 
     def choose_log_dir(self):
