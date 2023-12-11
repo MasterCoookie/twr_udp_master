@@ -12,7 +12,7 @@ from complete_simultaneus_random_strategy import CompleteSimultaneusRandomStrate
 from multiprocessing import Queue, Process, Event, Manager
 
 from PyQt6 import QtGui
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit, QFileDialog, QCheckBox, QFrame, QRadioButton
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QListWidget, QDialog, QLineEdit, QInputDialog, QDialogButtonBox, QFormLayout, QLabel, QStyle, QPlainTextEdit, QFileDialog, QCheckBox, QFrame, QRadioButton, QSpinBox
 from PyQt6.QtCore import QThread, QObject, pyqtSignal as Signal, pyqtSlot as Slot, Qt, QSettings
 
 ended = Event()
@@ -114,13 +114,17 @@ class SettingsDialog(QDialog):
         self.delay_input = QLineEdit(self)
         self.delay_input.setText(self.settings.value("delay", "100"))
 
+        strategy_label = QLabel("Strategy", self)
+
         self.complete_random_radio = QRadioButton("Complete random", self)
         
         self.simultaneus_random_radio = QRadioButton("Simultaneus random", self)
+        self.simultaneus_delay_input = QLineEdit(self)
 
         self.closest_radio = QRadioButton("Closest", self)
 
         self.position_prediction_radio = QRadioButton("Position prediction", self)
+        self.regression_treshold_input = QLineEdit(self)
 
         self.enable_log_save_label = QLabel("Log directory", self)
 
@@ -134,10 +138,13 @@ class SettingsDialog(QDialog):
 
         layout.addRow("Out Port:", self.out_port_input)
         layout.addRow("Delay (ms):", self.delay_input)
+        layout.addRow(strategy_label)
         layout.addRow(self.complete_random_radio)
         layout.addRow(self.simultaneus_random_radio)
+        layout.addRow("Delay (ns):", self.simultaneus_delay_input)
         layout.addRow(self.closest_radio)
         layout.addRow(self.position_prediction_radio)
+        layout.addRow("Regression treshold:", self.regression_treshold_input)
         layout.addRow(self.enable_log_save_label)
         layout.addRow(self.log_save_dir_input, self.log_dir_button)
         layout.addWidget(button_box)
