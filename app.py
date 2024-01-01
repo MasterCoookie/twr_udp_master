@@ -535,7 +535,8 @@ class MainWindow(QMainWindow):
 
         print(self.setup_widget.tags_dict)
         if self.setup_widget.tags_dict == {}:
-            self.setup_widget.tags_dict = {'FF': ('127.0.0.1', 5001, [('AA', 3.0, 4.0, 5.0), ('BB', 2.0, 2.0, 2.0), ('CC', 3.0, 3.0, 3.0), ('DD', 0.0, 0.0, 1.0), ('EE', 0.0, 0.0, 0.5)])}
+            # self.setup_widget.tags_dict = {'FF': ('127.0.0.1', 5001, [('AA', 3.0, 4.0, 5.0), ('BB', 2.0, 2.0, 2.0), ('CC', 3.0, 3.0, 3.0), ('DD', 0.0, 0.0, 1.0), ('EE', 0.0, 0.0, 0.5)])}
+            self.setup_widget.tags_dict = {'DD': ('192.168.0.112', 7, [('AA', 0.0, 0.0, 0.0), ('BB', 0.0, 0.0, 0.0), ('GG', 0.0, 0.0, 0.0)]), 'EE': ('192.168.0.113', 12, [('AA', 0.0, 0.0, 0.0), ('BB', 0.0, 0.0, 0.0), ('GG', 0.0, 0.0, 0.0)])}
 
         self.worker = Worker(self.setup_widget.tags_dict)
         self.worker_thread = QThread()
